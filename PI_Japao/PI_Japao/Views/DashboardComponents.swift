@@ -28,7 +28,11 @@ struct SessionCard: View {
             .foregroundStyle(.secondary)
         }
         .padding()
-        .background(AppTheme.cardBackground)
+        .background(Color.white)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(AppTheme.primaryColor.opacity(0.2), lineWidth: 1)
+        )
         .cornerRadius(8)
     }
 }
@@ -53,7 +57,11 @@ struct BeaconCard: View {
                 .foregroundColor(AppTheme.successColor)
         }
         .padding()
-        .background(AppTheme.cardBackground)
+        .background(Color.white)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(AppTheme.primaryColor.opacity(0.2), lineWidth: 1)
+        )
         .cornerRadius(8)
     }
 }

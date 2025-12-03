@@ -87,7 +87,7 @@ struct DashboardView: View {
                     .adaptivePadding()
                 }
             }
-            .background(AppTheme.backgroundColor)
+            .background(AppTheme.backgroundGradient)
             .navigationTitle("Dashboard")
             .navigationBarTitleDisplayMode(.large)
             .task {

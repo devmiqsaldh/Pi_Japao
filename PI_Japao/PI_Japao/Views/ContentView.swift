@@ -45,7 +45,6 @@ struct ContentView: View {
             type: errorHandler.errorType,
             isPresented: $errorHandler.showError
         )
-        .environment(errorHandler)
         .task {
             await checkConnection()
         }

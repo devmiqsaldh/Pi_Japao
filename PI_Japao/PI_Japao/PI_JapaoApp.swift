@@ -10,11 +10,13 @@ import SwiftUI
 @main
 struct PI_JapaoApp: App {
     @State private var attendanceManager = AttendanceManager()
+    @State private var errorHandler = ErrorHandler()
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SplashView()
                 .environment(attendanceManager)
+                .environment(errorHandler)
                 .task {
                     await attendanceManager.initialize()
                 }

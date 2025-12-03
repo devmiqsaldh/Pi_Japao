@@ -22,11 +22,21 @@ struct BeaconController: RouteCollection {
     func create(req: Request) async throws -> Beacon.Public {
         let create = try req.content.decode(Beacon.Create.self)
         
-        // Verificar se já existe beacon com esse ID
-        if let existing = try await Beacon.query(on: req.db)
+        // Verificar se já existe beacon com mesmo UUID
+        if try await Beacon.query(on: req.db)
             .filter(\.$beaconID == create.beaconID)
-            .first() {
-            throw Abort(.conflict, reason: "Beacon com ID '\(create.beaconID)' já existe")
+            .first() != nil {
+            throw Abort(.conflict, reason: "Beacon com UUID '\(create.beaconID)' já está cadastrado")
+        }
+        
+        // Verificar se já existe aluno usando este beacon
+        let existingStudent = try await Student.query(on: req.db)
+            .join(Beacon.self, on: \Student.$beacon.$id == \Beacon.$id)
+            .filter(Beacon.self, \.$beaconID == create.beaconID)
+            .first()
+        
+        if existingStudent != nil {
+            throw Abort(.conflict, reason: "Este beacon já está associado a um aluno")
         }
         
         let beacon = Beacon(

@@ -34,6 +34,21 @@ class StudentViewModel {
         try await loadStudents()
     }
     
+    func createStudentWithBeacon(name: String, email: String?, phone: String?, beaconID: String, beaconName: String) async throws {
+        // Criar beacon primeiro, depois criar aluno
+        let beaconCreateDTO = BeaconCreateDTO(beaconID: beaconID, name: beaconName, isActive: true)
+        let createdBeacon = try await apiService.createBeacon(beaconCreateDTO)
+        
+        guard let beaconUUID = createdBeacon.id else {
+            throw NSError(domain: "StudentError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Erro ao criar beacon"])
+        }
+        
+        // Criar aluno associado ao beacon
+        let createDTO = StudentCreateDTO(name: name, email: email, phone: phone, beaconID: beaconUUID)
+        _ = try await apiService.createStudent(createDTO)
+        try await loadStudents()
+    }
+    
     func updateStudent(id: UUID, name: String? = nil, email: String? = nil, phone: String? = nil, beaconID: UUID? = nil) async throws {
         let updateDTO = StudentUpdateDTO(name: name, email: email, phone: phone, beaconID: beaconID)
         _ = try await apiService.updateStudent(id: id, updateDTO)

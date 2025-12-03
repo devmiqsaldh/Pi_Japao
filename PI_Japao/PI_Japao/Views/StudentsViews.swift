@@ -46,11 +46,18 @@ struct StudentsListView: View {
                                                 .font(.caption)
                                                 .foregroundStyle(.secondary)
                                         }
-                                        if let beacon = student.beacon {
-                                            Label("\(beacon.name)", systemImage: "antenna.radiowaves.left.and.right")
-                                                .font(.caption2)
-                                                .foregroundStyle(AppTheme.accentColor)
-                                        }
+                                if let beacon = student.beacon {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "antenna.radiowaves.left.and.right")
+                                            .font(.caption2)
+                                        Text("\(beacon.name)")
+                                            .font(.caption2)
+                                    }
+                                    .foregroundStyle(AppTheme.accentColor)
+                                    Text(beacon.beaconID)
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
                                     }
                                 }
                                 .padding(.vertical, 4)
@@ -92,7 +99,6 @@ struct StudentsListView: View {
     
     private func loadData() async {
         do {
-            try await viewModel.loadBeacons()
             try await viewModel.loadStudents()
         } catch {
             errorHandler.handleAPIError(error)
@@ -120,7 +126,8 @@ struct StudentFormView: View {
     @State var name: String = ""
     @State var email: String = ""
     @State var phone: String = ""
-    @State var selectedBeaconID: UUID?
+    @State var beaconID: String = ""
+    @State var beaconName: String = ""
     @State var isSaving = false
     
     var student: StudentDTO?
@@ -133,35 +140,51 @@ struct StudentFormView: View {
             _name = State(initialValue: s.name)
             _email = State(initialValue: s.email ?? "")
             _phone = State(initialValue: s.phone ?? "")
-            _selectedBeaconID = State(initialValue: s.beaconID)
+            _beaconID = State(initialValue: s.beacon?.beaconID ?? "")
+            _beaconName = State(initialValue: s.beacon?.name ?? "")
         }
     }
 
     var body: some View {
         Form {
-            Section("Identificação") {
+            Section("Identificação do Aluno") {
                 TextField("Nome do Aluno", text: $name)
             }
+            
             Section("Contato") {
                 TextField("Email", text: $email)
                     .keyboardType(.emailAddress)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
-                TextField("Telefone", text: $phone)
+                    .autocapitalization(.none)
+                TextField("Telefone (opcional)", text: $phone)
                     .keyboardType(.phonePad)
             }
-            Section("Beacon") {
-                if viewModel.beacons.isEmpty {
-                    Text("Nenhum beacon disponível. Cadastre um beacon primeiro.")
+            
+            Section {
+                Text("Cadastre o Beacon do Aluno")
+                    .font(.headline)
+                Text("Cada aluno deve ter um beacon único. O UUID do beacon será usado para identificação.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } header: {
+                Text("Beacon")
+            }
+            
+            Section("Informações do Beacon") {
+                TextField("UUID do Beacon", text: $beaconID)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .autocapitalization(.none)
+                    .disabled(student != nil) // Não permite editar UUID de aluno existente
+                
+                TextField("Nome do Beacon (ex: Beacon João)", text: $beaconName)
+                    .textInputAutocapitalization(.words)
+                
+                if student == nil {
+                    Text("O beacon será criado automaticamente junto com o aluno.")
+                        .font(.caption)
                         .foregroundStyle(.secondary)
-                } else {
-                    Picker("Beacon", selection: $selectedBeaconID) {
-                        Text("Selecione um beacon").tag(nil as UUID?)
-                        ForEach(viewModel.beacons) { beacon in
-                            Text("\(beacon.name) (\(beacon.beaconID))")
-                                .tag(beacon.id as UUID?)
-                        }
-                    }
                 }
             }
         }
@@ -176,32 +199,41 @@ struct StudentFormView: View {
                         await save()
                     }
                 }
-                .disabled(isSaving || name.trimmingCharacters(in: .whitespaces).isEmpty || selectedBeaconID == nil)
+                .disabled(isSaving || name.trimmingCharacters(in: .whitespaces).isEmpty || beaconID.trimmingCharacters(in: .whitespaces).isEmpty || beaconName.trimmingCharacters(in: .whitespaces).isEmpty)
             }
         }
     }
 
     private func save() async {
-        guard let beaconID = selectedBeaconID else { return }
-        
         isSaving = true
         defer { isSaving = false }
         
+        let trimmedBeaconID = beaconID.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedBeaconName = beaconName.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard !trimmedBeaconID.isEmpty, !trimmedBeaconName.isEmpty else {
+            errorHandler.show("UUID e nome do beacon são obrigatórios", type: .error)
+            return
+        }
+        
         do {
             if let s = student, let id = s.id {
+                // Edição: atualizar apenas dados do aluno
                 try await viewModel.updateStudent(
                     id: id,
                     name: name,
                     email: email.isEmpty ? nil : email,
                     phone: phone.isEmpty ? nil : phone,
-                    beaconID: beaconID
+                    beaconID: nil // Não muda o beacon na edição
                 )
             } else {
-                try await viewModel.createStudent(
+                // Criação: criar aluno com beacon
+                try await viewModel.createStudentWithBeacon(
                     name: name,
                     email: email.isEmpty ? nil : email,
                     phone: phone.isEmpty ? nil : phone,
-                    beaconID: beaconID
+                    beaconID: trimmedBeaconID,
+                    beaconName: trimmedBeaconName
                 )
             }
             dismiss()

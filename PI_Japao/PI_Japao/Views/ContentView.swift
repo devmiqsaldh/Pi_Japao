@@ -18,11 +18,6 @@ struct ContentView: View {
                 .tabItem {
                     Label("Dashboard", systemImage: "chart.bar.fill")
                 }
-
-            BeaconsListView()
-                .tabItem {
-                    Label("Beacons", systemImage: "antenna.radiowaves.left.and.right")
-                }
             
             StudentsListView()
                 .tabItem {

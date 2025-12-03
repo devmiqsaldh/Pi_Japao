@@ -24,8 +24,17 @@ struct StudentController: RouteCollection {
         let create = try req.content.decode(Student.Create.self)
         
         // Verificar se o beacon existe
-        guard try await Beacon.find(create.beaconID, on: req.db) != nil else {
+        guard let beacon = try await Beacon.find(create.beaconID, on: req.db) else {
             throw Abort(.notFound, reason: "Beacon não encontrado")
+        }
+        
+        // Verificar se o beacon já está associado a outro aluno
+        let existingStudent = try await Student.query(on: req.db)
+            .filter(\.$beacon.$id == create.beaconID)
+            .first()
+        
+        if existingStudent != nil {
+            throw Abort(.conflict, reason: "Este beacon já está associado a outro aluno")
         }
         
         let student = Student(

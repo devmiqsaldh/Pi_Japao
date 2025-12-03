@@ -1,8 +1,10 @@
-# 📧 Integração de Email e SMS
+# 📧 Integração de Email e WhatsApp
 
 ## Status Atual
 
 Atualmente, o sistema está **simulando** o envio de mensagens. As mensagens são apenas impressas no console do backend, mas não são realmente enviadas.
+
+**Nota**: O sistema agora suporta envio por **Email** e **WhatsApp** (ambos podem ser gratuitos).
 
 ## Como Funciona Atualmente
 
@@ -38,25 +40,32 @@ Para enviar mensagens reais, você precisa integrar com serviços de terceiros:
    - Plano gratuito: 5.000 emails/mês
    - Documentação: https://documentation.mailgun.com/
 
-### 📱 SMS
+### 💬 WhatsApp
 
-**Opções recomendadas:**
+**Opções recomendadas (gratuitas ou com plano gratuito):**
 
-1. **Twilio** (Recomendado)
+1. **Twilio WhatsApp API** (Recomendado - tem plano gratuito)
+   - WhatsApp Business API oficial
+   - Plano gratuito: 1.000 mensagens/mês
    - Suporta números de **qualquer país**
-   - API robusta e confiável
-   - Crédito inicial: $15.50
-   - Documentação: https://www.twilio.com/docs
+   - Documentação: https://www.twilio.com/docs/whatsapp
 
-2. **Vonage (Nexmo)**
-   - Suporta números internacionais
-   - Preços competitivos
-   - Documentação: https://developer.vonage.com/
+2. **Evolution API** (Gratuito - self-hosted)
+   - API open-source para WhatsApp
+   - Totalmente gratuito
+   - Requer servidor próprio
+   - Documentação: https://evolution-api.com/
 
-3. **AWS SNS**
-   - Integrado com AWS
-   - Suporta números internacionais
-   - Documentação: https://docs.aws.amazon.com/sns/
+3. **Baileys** (Gratuito)
+   - Biblioteca Node.js para WhatsApp
+   - Pode ser adaptada para Swift
+   - Totalmente gratuito
+   - Documentação: https://github.com/WhiskeySockets/Baileys
+
+4. **WhatsApp Business Cloud API** (Meta)
+   - API oficial do Meta
+   - Plano gratuito limitado
+   - Documentação: https://developers.facebook.com/docs/whatsapp
 
 ## Como Integrar
 
@@ -116,12 +125,13 @@ class MessageService {
 }
 ```
 
-### Exemplo: Twilio para SMS
+### Exemplo: Twilio para WhatsApp
 
 1. **Criar conta no Twilio**
    - Acesse: https://www.twilio.com
-   - Crie uma conta
+   - Crie uma conta (plano gratuito disponível)
    - Obtenha Account SID e Auth Token
+   - Configure WhatsApp Sandbox (gratuito para testes)
 
 2. **Adicionar dependência**
 
@@ -131,37 +141,41 @@ dependencies: [
 ]
 ```
 
-3. **Implementar envio de SMS**
+3. **Implementar envio de WhatsApp**
 
 ```swift
 import Twilio
 
 // No MessageService
-func sendSMS(to phone: String, message: String) async throws {
+func sendWhatsApp(to phone: String, message: String) async throws {
     let client = TwilioClient(
         accountSid: ProcessInfo.processInfo.environment["TWILIO_ACCOUNT_SID"] ?? "",
         authToken: ProcessInfo.processInfo.environment["TWILIO_AUTH_TOKEN"] ?? ""
     )
     
+    // Formato: whatsapp:+5511999999999
+    let whatsappNumber = phone.starts(with: "whatsapp:") ? phone : "whatsapp:\(phone)"
+    
     let response = try await client.messages.create(
         body: message,
-        to: phone, // Formato: +5511999999999 (com código do país)
-        from: ProcessInfo.processInfo.environment["TWILIO_PHONE_NUMBER"] ?? ""
+        to: whatsappNumber,
+        from: ProcessInfo.processInfo.environment["TWILIO_WHATSAPP_NUMBER"] ?? "whatsapp:+14155238886" // Sandbox
     )
     
-    print("✅ SMS enviado: \(response.sid)")
+    print("✅ WhatsApp enviado: \(response.sid)")
 }
 ```
 
 ## Formato de Telefone
 
-Para SMS funcionar internacionalmente:
+Para WhatsApp funcionar internacionalmente:
 - **Sempre inclua código do país**
 - Formato: `+[código do país][número]`
 - Exemplos:
   - Brasil: `+5511999999999`
   - EUA: `+15551234567`
   - Portugal: `+351912345678`
+- **Importante**: O número deve estar cadastrado no WhatsApp
 
 ## Variáveis de Ambiente
 
@@ -171,10 +185,10 @@ Configure no arquivo `.env` ou variáveis de ambiente do sistema:
 # SendGrid
 SENDGRID_API_KEY=SG.xxxxxxxxxxxxx
 
-# Twilio
+# Twilio (WhatsApp)
 TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxx
 TWILIO_AUTH_TOKEN=xxxxxxxxxxxxx
-TWILIO_PHONE_NUMBER=+15551234567
+TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886
 ```
 
 ## Testes
@@ -193,21 +207,28 @@ Antes de usar em produção:
 - **Essentials**: $19.95/mês - 50.000 emails
 - **Pro**: $89.95/mês - 100.000 emails
 
-### SMS (Twilio)
-- **Brasil**: ~$0.05 por SMS
-- **EUA**: ~$0.0075 por SMS
-- **Portugal**: ~$0.05 por SMS
+### WhatsApp (Twilio)
+- **Plano Gratuito**: 1.000 mensagens/mês
+- **Pago**: ~$0.005 por mensagem (após o limite gratuito)
+- **Brasil**: Suportado
+- **Qualquer país**: Suportado
 
 ## Próximos Passos
 
-1. Escolher serviço de Email (recomendado: SendGrid)
-2. Escolher serviço de SMS (recomendado: Twilio)
+1. Escolher serviço de Email (recomendado: SendGrid - gratuito)
+2. Escolher serviço de WhatsApp (recomendado: Twilio - tem plano gratuito)
 3. Criar contas e obter credenciais
 4. Adicionar dependências no `Package.swift`
 5. Atualizar `MessageService.swift` com integração real
 6. Configurar variáveis de ambiente
 7. Testar com números/emails reais
 8. Monitorar custos e uso
+
+## Nota sobre WhatsApp
+
+O sistema agora suporta envio por **Email** e **WhatsApp**. Ambos podem ser configurados com serviços gratuitos:
+- **Email**: SendGrid (100 emails/dia grátis)
+- **WhatsApp**: Twilio (1.000 mensagens/mês grátis)
 
 ## Suporte
 

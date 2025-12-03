@@ -88,11 +88,10 @@ struct DetectionController: RouteCollection {
                 time: now
             )
             
-            // Enviar mensagem apenas por Email (gratuito)
-            // SMS desabilitado por enquanto (requer serviço pago)
+            // Enviar mensagem por Email e WhatsApp (ambos gratuitos)
             try await MessageService.shared.send(
                 toEmail: student.email,
-                phone: nil, // SMS desabilitado
+                phone: student.phone, // WhatsApp habilitado
                 message: message,
                 on: req.db
             )

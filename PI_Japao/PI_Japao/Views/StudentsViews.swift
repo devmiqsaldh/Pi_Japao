@@ -23,6 +23,12 @@ struct StudentsListView: View {
                         ForEach(viewModel.students) { student in
                             NavigationLink {
                                 StudentFormView(student: student, viewModel: viewModel)
+                                    .onDisappear {
+                                        // Recarregar lista quando sair da edição
+                                        Task {
+                                            await loadData()
+                                        }
+                                    }
                             } label: {
                                 HStack(spacing: 12) {
                                     Circle()
@@ -82,6 +88,12 @@ struct StudentsListView: View {
             .sheet(isPresented: $showingAdd) {
                 NavigationStack {
                     StudentFormView(viewModel: viewModel)
+                        .onDisappear {
+                            // Recarregar lista quando o sheet fechar
+                            Task {
+                                await loadData()
+                            }
+                        }
                 }
             }
             .task {
@@ -246,8 +258,10 @@ struct StudentFormView: View {
                     phone: trimmedPhone.isEmpty ? nil : trimmedPhone,
                     beaconID: nil // Não muda o beacon na edição
                 )
+                // Aguardar um pouco para garantir que a lista foi atualizada
+                try? await Task.sleep(nanoseconds: 300_000_000)
                 errorHandler.show("Aluno atualizado com sucesso!", type: .success)
-                // Aguardar um pouco para mostrar mensagem de sucesso
+                // Aguardar mais um pouco para mostrar mensagem de sucesso
                 try? await Task.sleep(nanoseconds: 500_000_000)
                 dismiss()
             } else {
@@ -261,8 +275,10 @@ struct StudentFormView: View {
                     beaconID: trimmedBeaconID,
                     beaconName: beaconName
                 )
+                // Aguardar um pouco para garantir que a lista foi atualizada
+                try? await Task.sleep(nanoseconds: 300_000_000)
                 errorHandler.show("Aluno cadastrado com sucesso!", type: .success)
-                // Aguardar um pouco para mostrar mensagem de sucesso
+                // Aguardar mais um pouco para mostrar mensagem de sucesso
                 try? await Task.sleep(nanoseconds: 500_000_000)
                 dismiss()
             }

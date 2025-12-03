@@ -40,19 +40,35 @@ class StudentViewModel {
         let createdBeacon = try await apiService.createBeacon(beaconCreateDTO)
         
         guard let beaconUUID = createdBeacon.id else {
-            throw NSError(domain: "StudentError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Erro ao criar beacon"])
+            throw NSError(domain: "StudentError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Erro ao criar beacon: UUID não retornado"])
         }
         
         // Criar aluno associado ao beacon
         let createDTO = StudentCreateDTO(name: name, email: email, phone: phone, beaconID: beaconUUID)
-        _ = try await apiService.createStudent(createDTO)
+        let createdStudent = try await apiService.createStudent(createDTO)
+        
+        // Recarregar lista de alunos para garantir que está atualizada
         try await loadStudents()
+        
+        // Verificar se o aluno foi realmente criado
+        if !students.contains(where: { $0.id == createdStudent.id }) {
+            // Se não estiver na lista, forçar recarregamento novamente
+            try await loadStudents()
+        }
     }
     
     func updateStudent(id: UUID, name: String? = nil, email: String? = nil, phone: String? = nil, beaconID: UUID? = nil) async throws {
         let updateDTO = StudentUpdateDTO(name: name, email: email, phone: phone, beaconID: beaconID)
-        _ = try await apiService.updateStudent(id: id, updateDTO)
+        let updatedStudent = try await apiService.updateStudent(id: id, updateDTO)
+        
+        // Recarregar lista de alunos para garantir que está atualizada
         try await loadStudents()
+        
+        // Verificar se o aluno foi realmente atualizado
+        if !students.contains(where: { $0.id == updatedStudent.id }) {
+            // Se não estiver na lista, forçar recarregamento novamente
+            try await loadStudents()
+        }
     }
     
     func deleteStudent(id: UUID) async throws {

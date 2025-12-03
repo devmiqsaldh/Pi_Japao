@@ -25,15 +25,21 @@ struct BeaconsListView: View {
                                 Text("ID: \(beacon.beaconID)")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
-                                Toggle("Ativo", isOn: Binding(
-                                    get: { beacon.isActive },
-                                    set: { newValue in
-                                        Task {
-                                            try? await viewModel.updateBeacon(id: beacon.id!, isActive: newValue)
+                                if let id = beacon.id {
+                                    Toggle("Ativo", isOn: Binding(
+                                        get: { beacon.isActive },
+                                        set: { newValue in
+                                            Task {
+                                                try? await viewModel.updateBeacon(id: id, isActive: newValue)
+                                            }
                                         }
-                                    }
-                                ))
-                                .toggleStyle(.switch)
+                                    ))
+                                    .toggleStyle(.switch)
+                                } else {
+                                    Text("Sem ID (não é possível alterar o estado)")
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
                             }
                         }
                     }
@@ -84,6 +90,7 @@ struct BeaconsListView: View {
 
 struct BeaconFormView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(AttendanceManager.self) private var attendanceManager
     @State var beaconID: String = ""
     @State var name: String = ""
     @State var isActive: Bool = true

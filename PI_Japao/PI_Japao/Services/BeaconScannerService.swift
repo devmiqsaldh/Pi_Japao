@@ -1,5 +1,6 @@
 import Foundation
 import CoreLocation
+import Combine
 
 protocol BeaconScannerServiceDelegate: AnyObject {
     func didDetectBeacon(beaconID: String)

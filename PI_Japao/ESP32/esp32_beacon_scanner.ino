@@ -18,14 +18,20 @@
 // ============================================
 
 // WiFi
-const char* ssid = "SEU_WIFI_SSID";
-const char* password = "SUA_SENHA_WIFI";
+const char* ssid = "SEU_WIFI_SSID";           // Nome da sua rede WiFi
+const char* password = "SUA_SENHA_WIFI";      // Senha do WiFi
 
 // Backend API
 const char* backendURL = "http://192.168.1.100:8080/api/detections";
-// Nota: Use o IP local da máquina onde o backend está rodando
-// Para descobrir: no Mac/Linux: ifconfig | grep inet
-//                 no Windows: ipconfig
+// IMPORTANTE: Substitua pelo IP do computador onde o backend está rodando
+// 
+// Como descobrir o IP:
+// - Mac/Linux: ifconfig | grep "inet " | grep -v 127.0.0.1
+// - Windows: ipconfig (procure por "IPv4 Address")
+// - O IP geralmente é algo como: 192.168.1.XXX ou 192.168.0.XXX
+//
+// Exemplo: Se seu computador tem IP 192.168.1.50, use:
+// const char* backendURL = "http://192.168.1.50:8080/api/detections";
 
 // Intervalo de escaneamento (em segundos)
 const int scanInterval = 5;

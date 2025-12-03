@@ -8,58 +8,77 @@ struct BeaconsListView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                if viewModel.isLoading {
+            ZStack {
+                if viewModel.isLoading && viewModel.beacons.isEmpty {
                     ProgressView()
+                        .scaleEffect(1.5)
                 } else if viewModel.beacons.isEmpty {
-                    Text("Nenhum beacon cadastrado")
-                        .foregroundStyle(.secondary)
+                    VStack(spacing: 16) {
+                        Image(systemName: "antenna.radiowaves.left.and.right")
+                            .font(.system(size: 60))
+                            .foregroundStyle(AppTheme.primaryColor.opacity(0.3))
+                        Text("Nenhum beacon cadastrado")
+                            .font(.headline)
+                            .foregroundStyle(.secondary)
+                        Text("Toque no botão + para adicionar")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    ForEach(viewModel.beacons) { beacon in
-                        NavigationLink {
-                            BeaconFormView(beacon: beacon, viewModel: viewModel)
-                        } label: {
-                            VStack(alignment: .leading) {
-                                Text(beacon.name)
-                                    .font(.headline)
-                                Text("ID: \(beacon.beaconID)")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                if let id = beacon.id {
-                                    Toggle("Ativo", isOn: Binding(
-                                        get: { beacon.isActive },
-                                        set: { newValue in
-                                            Task {
-                                                try? await viewModel.updateBeacon(id: id, isActive: newValue)
+                    List {
+                        ForEach(viewModel.beacons) { beacon in
+                            NavigationLink {
+                                BeaconFormView(beacon: beacon, viewModel: viewModel)
+                            } label: {
+                                HStack {
+                                    Circle()
+                                        .fill(beacon.isActive ? AppTheme.accentColor : Color.gray)
+                                        .frame(width: 12, height: 12)
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(beacon.name)
+                                            .font(.headline)
+                                        Text(beacon.beaconID)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    Spacer()
+                                    if let id = beacon.id {
+                                        Toggle("", isOn: Binding(
+                                            get: { beacon.isActive },
+                                            set: { newValue in
+                                                Task {
+                                                    try? await viewModel.updateBeacon(id: id, isActive: newValue)
+                                                }
                                             }
-                                        }
-                                    ))
-                                    .toggleStyle(.switch)
-                                } else {
-                                    Text("Sem ID (não é possível alterar o estado)")
-                                        .font(.caption2)
-                                        .foregroundStyle(.secondary)
+                                        ))
+                                        .toggleStyle(.switch)
+                                    }
                                 }
+                                .padding(.vertical, 4)
                             }
                         }
+                        .onDelete(perform: delete)
                     }
-                    .onDelete(perform: delete)
                 }
                 
                 if let error = viewModel.errorMessage {
-                    Section {
-                        Text(error)
-                            .foregroundStyle(.red)
+                    VStack {
+                        Spacer()
+                        ErrorCard(message: error)
+                            .padding()
                     }
                 }
             }
             .navigationTitle("Beacons")
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         showingAdd = true
                     } label: {
-                        Label("Adicionar", systemImage: "plus")
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title3)
                     }
                 }
             }

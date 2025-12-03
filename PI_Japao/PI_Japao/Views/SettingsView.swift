@@ -10,47 +10,106 @@ struct SettingsView: View {
     @State private var absenceMessage = ""
     @State private var leftMessage = ""
     @State private var notLeftMessage = ""
+    @State private var backendURL = ""
     @State private var isSaving = false
+    @State private var showSuccessAlert = false
 
     var body: some View {
         Form {
-            Section("Horários - Presença") {
-                DatePicker("Início", selection: $presenceStart, displayedComponents: .hourAndMinute)
-                DatePicker("Limite", selection: $presenceCutoff, displayedComponents: .hourAndMinute)
-            }
-            Section("Horários - Saída") {
-                DatePicker("Início", selection: $exitStart, displayedComponents: .hourAndMinute)
-                DatePicker("Limite", selection: $exitCutoff, displayedComponents: .hourAndMinute)
-            }
-            Section("Mensagens") {
-                TextField("Mensagem Presença", text: $presenceMessage)
-                TextField("Mensagem Falta", text: $absenceMessage)
-                TextField("Mensagem Saída", text: $leftMessage)
-                TextField("Mensagem Não Saiu", text: $notLeftMessage)
-                Text("Use {name} e {time} como variáveis.")
+            Section {
+                HStack {
+                    Image(systemName: "server.rack")
+                        .foregroundColor(AppTheme.primaryColor)
+                    Text("URL do Backend")
+                }
+                TextField("http://192.168.1.100:8080", text: $backendURL)
+                    .keyboardType(.URL)
+                    .autocapitalization(.none)
+                    .autocorrectionDisabled()
+                Text("Configure o IP e porta do servidor backend")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            } header: {
+                Text("Conexão")
+            }
+            
+            Section {
+                DatePicker("Início", selection: $presenceStart, displayedComponents: .hourAndMinute)
+                DatePicker("Limite", selection: $presenceCutoff, displayedComponents: .hourAndMinute)
+            } header: {
+                HStack {
+                    Image(systemName: "sunrise.fill")
+                        .foregroundColor(AppTheme.accentColor)
+                    Text("Horários - Presença")
+                }
+            }
+            
+            Section {
+                DatePicker("Início", selection: $exitStart, displayedComponents: .hourAndMinute)
+                DatePicker("Limite", selection: $exitCutoff, displayedComponents: .hourAndMinute)
+            } header: {
+                HStack {
+                    Image(systemName: "sunset.fill")
+                        .foregroundColor(AppTheme.secondaryColor)
+                    Text("Horários - Saída")
+                }
+            }
+            
+            Section {
+                TextField("Mensagem Presença", text: $presenceMessage, axis: .vertical)
+                    .lineLimit(3...6)
+                TextField("Mensagem Falta", text: $absenceMessage, axis: .vertical)
+                    .lineLimit(3...6)
+                TextField("Mensagem Saída", text: $leftMessage, axis: .vertical)
+                    .lineLimit(3...6)
+                TextField("Mensagem Não Saiu", text: $notLeftMessage, axis: .vertical)
+                    .lineLimit(3...6)
+                Text("Use {name} e {time} como variáveis nos templates.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } header: {
+                HStack {
+                    Image(systemName: "message.fill")
+                        .foregroundColor(AppTheme.primaryColor)
+                    Text("Mensagens")
+                }
             }
             
             if let error = viewModel.errorMessage {
                 Section {
-                    Text(error)
-                        .foregroundStyle(.red)
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(AppTheme.errorColor)
+                        Text(error)
+                            .foregroundStyle(AppTheme.errorColor)
+                    }
                 }
             }
         }
         .navigationTitle("Configurações")
+        .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Salvar") {
+                Button {
                     Task {
                         await save()
+                    }
+                } label: {
+                    if isSaving {
+                        ProgressView()
+                    } else {
+                        Text("Salvar")
+                            .fontWeight(.semibold)
                     }
                 }
                 .disabled(isSaving)
             }
         }
+        .alert("Configurações salvas!", isPresented: $showSuccessAlert) {
+            Button("OK", role: .cancel) { }
+        }
         .task {
+            backendURL = AppConfig.shared.backendURL
             await viewModel.loadSettings()
             if let s = viewModel.settings {
                 presenceStart = s.presenceStart
@@ -69,6 +128,11 @@ struct SettingsView: View {
         isSaving = true
         defer { isSaving = false }
         
+        // Salvar URL do backend
+        if !backendURL.isEmpty {
+            AppConfig.shared.backendURL = backendURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        
         do {
             try await viewModel.updateSettings(
                 presenceStart: presenceStart,
@@ -80,6 +144,7 @@ struct SettingsView: View {
                 leftMessage: leftMessage,
                 notLeftMessage: notLeftMessage
             )
+            showSuccessAlert = true
         } catch {
             print("❌ Erro ao salvar: \(error)")
         }

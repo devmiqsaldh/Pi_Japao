@@ -6,51 +6,80 @@ struct DashboardView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                Section("Sessões de hoje") {
-                    if let p = viewModel.currentPresenceSession {
-                        SessionRow(session: p)
-                    }
-                    if let e = viewModel.currentExitSession {
-                        SessionRow(session: e)
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Status Card
+                    if let error = viewModel.errorMessage {
+                        ErrorCard(message: error)
                     }
                     
-                    if viewModel.isLoading {
-                        ProgressView()
-                    }
-                }
-
-                Section("Beacons Ativos") {
-                    if viewModel.beacons.isEmpty {
-                        Text("Nenhum beacon cadastrado")
-                            .foregroundStyle(.secondary)
-                    } else {
-                        ForEach(viewModel.beacons.filter { $0.isActive }) { beacon in
+                    // Sessões Card
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Image(systemName: "calendar.badge.clock")
+                                .font(.title2)
+                                .foregroundColor(AppTheme.primaryColor)
+                            Text("Sessões de Hoje")
+                                .font(AppTheme.headlineFont)
+                        }
+                        
+                        if viewModel.isLoading {
                             HStack {
-                                VStack(alignment: .leading) {
-                                    Text(beacon.name)
-                                        .font(.headline)
-                                    Text("ID: \(beacon.beaconID)")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
                                 Spacer()
-                                if viewModel.isLoading {
-                                    ProgressView()
-                                }
+                                ProgressView()
+                                Spacer()
+                            }
+                            .padding()
+                        } else {
+                            if let p = viewModel.currentPresenceSession {
+                                SessionCard(session: p)
+                            }
+                            if let e = viewModel.currentExitSession {
+                                SessionCard(session: e)
+                            }
+                            if viewModel.currentPresenceSession == nil && viewModel.currentExitSession == nil {
+                                Text("Nenhuma sessão ativa")
+                                    .foregroundStyle(.secondary)
+                                    .padding()
                             }
                         }
                     }
-                }
-                
-                if let error = viewModel.errorMessage {
-                    Section {
-                        Text(error)
-                            .foregroundStyle(.red)
+                    .padding()
+                    .cardStyle()
+                    
+                    // Beacons Card
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Image(systemName: "antenna.radiowaves.left.and.right")
+                                .font(.title2)
+                                .foregroundColor(AppTheme.accentColor)
+                            Text("Beacons Ativos")
+                                .font(AppTheme.headlineFont)
+                            Spacer()
+                            Text("\(viewModel.beacons.filter { $0.isActive }.count)")
+                                .font(.title3)
+                                .fontWeight(.bold)
+                                .foregroundColor(AppTheme.primaryColor)
+                        }
+                        
+                        if viewModel.beacons.isEmpty {
+                            Text("Nenhum beacon cadastrado")
+                                .foregroundStyle(.secondary)
+                                .padding()
+                        } else {
+                            ForEach(viewModel.beacons.filter { $0.isActive }) { beacon in
+                                BeaconCard(beacon: beacon)
+                            }
+                        }
                     }
+                    .padding()
+                    .cardStyle()
                 }
+                .padding()
             }
+            .background(AppTheme.backgroundColor)
             .navigationTitle("Dashboard")
+            .navigationBarTitleDisplayMode(.large)
             .task {
                 await viewModel.start()
             }
@@ -67,31 +96,4 @@ struct DashboardView: View {
 #Preview("DashboardView") {
     DashboardView()
         .environment(AttendanceManager())
-}
-
-private struct SessionRow: View {
-    var session: AttendanceSessionDTO
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(session.kind == .presence ? "Presença" : "Saída")
-                    .font(.headline)
-                Spacer()
-                Text(session.date, style: .date)
-                    .foregroundStyle(.secondary)
-            }
-            HStack {
-                Image(systemName: "clock")
-                Text(session.startTime, style: .time)
-                Spacer()
-                Text("Limite: \(session.cutoffTime.formatted(date: .omitted, time: .shortened))")
-                    .foregroundStyle(.secondary)
-            }
-            if let count = session.recordsCount, count > 0 {
-                Text("Registros: \(count)")
-                    .font(.subheadline)
-            }
-        }
-    }
 }

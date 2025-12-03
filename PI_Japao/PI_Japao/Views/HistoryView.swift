@@ -5,41 +5,61 @@ struct HistoryView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                if viewModel.isLoading {
+            ZStack {
+                if viewModel.isLoading && viewModel.sessions.isEmpty {
                     ProgressView()
+                        .scaleEffect(1.5)
                 } else if viewModel.sessions.isEmpty {
-                    Text("Nenhuma sessão encontrada")
-                        .foregroundStyle(.secondary)
+                    VStack(spacing: 16) {
+                        Image(systemName: "clock.fill")
+                            .font(.system(size: 60))
+                            .foregroundStyle(AppTheme.primaryColor.opacity(0.3))
+                        Text("Nenhuma sessão encontrada")
+                            .font(.headline)
+                            .foregroundStyle(.secondary)
+                        Text("As sessões aparecerão aqui após detecções")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    ForEach(viewModel.sessions) { session in
-                        NavigationLink {
-                            SessionDetailView(sessionID: session.id!, viewModel: viewModel)
-                        } label: {
-                            VStack(alignment: .leading) {
-                                Text(session.kind == .presence ? "Presença" : "Saída")
-                                    .font(.headline)
+                    List {
+                        ForEach(viewModel.sessions) { session in
+                            NavigationLink {
+                                SessionDetailView(sessionID: session.id!, viewModel: viewModel)
+                            } label: {
                                 HStack {
-                                    Text(session.date, style: .date)
-                                    Spacer()
-                                    if let count = session.recordsCount {
-                                        Text("Registros: \(count)")
+                                    Image(systemName: session.kind == .presence ? "checkmark.circle.fill" : "arrow.right.circle.fill")
+                                        .font(.title2)
+                                        .foregroundColor(session.kind == .presence ? AppTheme.accentColor : AppTheme.secondaryColor)
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(session.kind == .presence ? "Presença" : "Saída")
+                                            .font(.headline)
+                                        Text(session.date, style: .date)
+                                            .font(.subheadline)
                                             .foregroundStyle(.secondary)
                                     }
+                                    Spacer()
+                                    if let count = session.recordsCount {
+                                        Badge(count: count)
+                                    }
                                 }
+                                .padding(.vertical, 4)
                             }
                         }
                     }
                 }
                 
                 if let error = viewModel.errorMessage {
-                    Section {
-                        Text(error)
-                            .foregroundStyle(.red)
+                    VStack {
+                        Spacer()
+                        ErrorCard(message: error)
+                            .padding()
                     }
                 }
             }
             .navigationTitle("Histórico")
+            .navigationBarTitleDisplayMode(.large)
             .task {
                 await viewModel.loadSessions()
             }

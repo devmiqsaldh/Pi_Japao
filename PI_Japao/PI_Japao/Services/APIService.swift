@@ -11,11 +11,12 @@ enum APIError: Error {
 class APIService {
     static let shared = APIService()
     
-    private let baseURL: String
+    private var baseURL: String {
+        AppConfig.shared.backendURL
+    }
     private let session: URLSession
     
-    init(baseURL: String = "http://localhost:8080") {
-        self.baseURL = baseURL
+    init() {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 30
         self.session = URLSession(configuration: config)

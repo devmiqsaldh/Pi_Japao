@@ -6,55 +6,82 @@ struct StudentsListView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                if viewModel.isLoading {
+            ZStack {
+                if viewModel.isLoading && viewModel.students.isEmpty {
                     ProgressView()
+                        .scaleEffect(1.5)
                 } else if viewModel.students.isEmpty {
-                    Text("Nenhum aluno cadastrado")
-                        .foregroundStyle(.secondary)
+                    VStack(spacing: 16) {
+                        Image(systemName: "person.2.fill")
+                            .font(.system(size: 60))
+                            .foregroundStyle(AppTheme.primaryColor.opacity(0.3))
+                        Text("Nenhum aluno cadastrado")
+                            .font(.headline)
+                            .foregroundStyle(.secondary)
+                        Text("Toque no botão + para adicionar")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    ForEach(viewModel.students) { student in
-                        NavigationLink {
-                            StudentFormView(student: student, viewModel: viewModel)
-                        } label: {
-                            VStack(alignment: .leading) {
-                                Text(student.name)
-                                    .font(.headline)
-                                if let email = student.email, !email.isEmpty {
-                                    Text("Email: \(email)")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                    List {
+                        ForEach(viewModel.students) { student in
+                            NavigationLink {
+                                StudentFormView(student: student, viewModel: viewModel)
+                            } label: {
+                                HStack {
+                                    Circle()
+                                        .fill(AppTheme.primaryColor)
+                                        .frame(width: 40, height: 40)
+                                        .overlay {
+                                            Text(String(student.name.prefix(1)))
+                                                .font(.headline)
+                                                .foregroundColor(.white)
+                                        }
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(student.name)
+                                            .font(.headline)
+                                        if let email = student.email, !email.isEmpty {
+                                            Label(email, systemImage: "envelope.fill")
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                        if let phone = student.phone, !phone.isEmpty {
+                                            Label(phone, systemImage: "phone.fill")
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                        if let beacon = student.beacon {
+                                            Label("\(beacon.name)", systemImage: "antenna.radiowaves.left.and.right")
+                                                .font(.caption2)
+                                                .foregroundStyle(AppTheme.accentColor)
+                                        }
+                                    }
                                 }
-                                if let phone = student.phone, !phone.isEmpty {
-                                    Text("Telefone: \(phone)")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                                if let beacon = student.beacon {
-                                    Text("Beacon: \(beacon.name) (\(beacon.beaconID))")
-                                        .font(.caption2)
-                                        .foregroundStyle(.secondary)
-                                }
+                                .padding(.vertical, 4)
                             }
                         }
+                        .onDelete(perform: delete)
                     }
-                    .onDelete(perform: delete)
                 }
                 
                 if let error = viewModel.errorMessage {
-                    Section {
-                        Text(error)
-                            .foregroundStyle(.red)
+                    VStack {
+                        Spacer()
+                        ErrorCard(message: error)
+                            .padding()
                     }
                 }
             }
             .navigationTitle("Alunos")
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         showingAdd = true
                     } label: {
-                        Label("Adicionar", systemImage: "plus")
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title3)
                     }
                 }
             }

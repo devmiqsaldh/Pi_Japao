@@ -75,10 +75,10 @@ final class AppSettings: Model, Content {
             presenceCutoff: presenceCutoff,
             exitStart: exitStart,
             exitCutoff: exitCutoff,
-            presenceMessage: "Presença registrada para {name} às {time}.",
-            absenceMessage: "Falta registrada para {name}.",
-            leftMessage: "Saída registrada para {name} às {time}.",
-            notLeftMessage: "Não saiu registrado para {name}."
+            presenceMessage: "{name} - Presença confirmada",
+            absenceMessage: "{name} - Falta registrada",
+            leftMessage: "{name} - Saída confirmada",
+            notLeftMessage: "{name} - Não saiu"
         )
     }
 }

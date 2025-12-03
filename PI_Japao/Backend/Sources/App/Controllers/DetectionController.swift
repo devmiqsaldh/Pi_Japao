@@ -88,10 +88,11 @@ struct DetectionController: RouteCollection {
                 time: now
             )
             
-            // Enviar mensagem (aqui você pode integrar com serviço de SMS/Email)
+            // Enviar mensagem apenas por Email (gratuito)
+            // SMS desabilitado por enquanto (requer serviço pago)
             try await MessageService.shared.send(
                 toEmail: student.email,
-                phone: student.phone,
+                phone: nil, // SMS desabilitado
                 message: message,
                 on: req.db
             )

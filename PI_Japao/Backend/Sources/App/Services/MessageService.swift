@@ -11,18 +11,21 @@ class MessageService {
         // Simular latência de envio (200ms)
         try await Task.sleep(nanoseconds: 200_000_000)
         
-        // Aqui você pode integrar com serviços reais de SMS/Email
-        // Por exemplo: Twilio para SMS, SendGrid para Email
+        // Enviar apenas por Email (gratuito)
+        // SMS desabilitado por enquanto (requer pagamento)
         
         if let email = email, !email.isEmpty {
             print("📧 EMAIL -> \(email): \(message)")
-            // TODO: Integrar com serviço de email real
+            // TODO: Integrar com serviço de email real (SendGrid, etc.)
+            // Por enquanto apenas simula o envio
+        } else {
+            print("⚠️ AVISO: Aluno sem email cadastrado. Mensagem não enviada: \(message)")
         }
         
-        if let phone = phone, !phone.isEmpty {
-            print("📱 SMS -> \(phone): \(message)")
-            // TODO: Integrar com serviço de SMS real (ex: Twilio)
-        }
+        // SMS desabilitado - requer serviço pago
+        // if let phone = phone, !phone.isEmpty {
+        //     print("📱 SMS -> \(phone): \(message)")
+        // }
         
         // Log no banco de dados (opcional)
         // Você pode criar uma tabela de logs de mensagens se necessário

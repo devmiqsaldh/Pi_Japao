@@ -35,25 +35,40 @@ class StudentViewModel {
     }
     
     func createStudentWithBeacon(name: String, email: String?, phone: String?, beaconID: String, beaconName: String) async throws {
-        // Criar beacon primeiro, depois criar aluno
-        let beaconCreateDTO = BeaconCreateDTO(beaconID: beaconID, name: beaconName, isActive: true)
-        let createdBeacon = try await apiService.createBeacon(beaconCreateDTO)
-        
-        guard let beaconUUID = createdBeacon.id else {
-            throw NSError(domain: "StudentError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Erro ao criar beacon: UUID não retornado"])
-        }
-        
-        // Criar aluno associado ao beacon
-        let createDTO = StudentCreateDTO(name: name, email: email, phone: phone, beaconID: beaconUUID)
-        let createdStudent = try await apiService.createStudent(createDTO)
-        
-        // Recarregar lista de alunos para garantir que está atualizada
-        try await loadStudents()
-        
-        // Verificar se o aluno foi realmente criado
-        if !students.contains(where: { $0.id == createdStudent.id }) {
-            // Se não estiver na lista, forçar recarregamento novamente
+        do {
+            // Criar beacon primeiro, depois criar aluno
+            let beaconCreateDTO = BeaconCreateDTO(beaconID: beaconID, name: beaconName, isActive: true)
+            let createdBeacon = try await apiService.createBeacon(beaconCreateDTO)
+            
+            guard let beaconUUID = createdBeacon.id else {
+                throw NSError(domain: "StudentError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Erro ao criar beacon: UUID não retornado"])
+            }
+            
+            // Criar aluno associado ao beacon
+            let createDTO = StudentCreateDTO(name: name, email: email, phone: phone, beaconID: beaconUUID)
+            let createdStudent = try await apiService.createStudent(createDTO)
+            
+            // Recarregar lista de alunos para garantir que está atualizada
             try await loadStudents()
+            
+            // Verificar se o aluno foi realmente criado
+            if !students.contains(where: { $0.id == createdStudent.id }) {
+                // Se não estiver na lista, forçar recarregamento novamente
+                try await loadStudents()
+            }
+        } catch {
+            // Re-throw com contexto adicional
+            if let nsError = error as NSError? {
+                throw NSError(
+                    domain: nsError.domain,
+                    code: nsError.code,
+                    userInfo: [
+                        NSLocalizedDescriptionKey: "Erro ao criar aluno: \(nsError.localizedDescription)",
+                        NSUnderlyingErrorKey: nsError
+                    ]
+                )
+            }
+            throw error
         }
     }
     

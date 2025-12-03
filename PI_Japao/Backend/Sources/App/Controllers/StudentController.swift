@@ -83,13 +83,3 @@ struct StudentController: RouteCollection {
     }
 }
 
-extension Sequence {
-    func asyncMap<T>(_ transform: (Element) async throws -> T) async rethrows -> [T] {
-        var results = [T]()
-        for element in self {
-            try await results.append(transform(element))
-        }
-        return results
-    }
-}
-

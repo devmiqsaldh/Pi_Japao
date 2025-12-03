@@ -176,11 +176,3 @@ struct DetectionResponse: Content {
     var students: [String]?
 }
 
-extension Date {
-    func aligned(to day: Date) -> Date {
-        let cal = Calendar.current
-        let comps = cal.dateComponents([.hour, .minute, .second], from: self)
-        return cal.date(bySettingHour: comps.hour ?? 0, minute: comps.minute ?? 0, second: comps.second ?? 0, of: day) ?? day
-    }
-}
-

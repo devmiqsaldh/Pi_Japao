@@ -77,10 +77,3 @@ extension AttendanceSession {
     }
 }
 
-extension Date {
-    func stripTime() -> Date {
-        let cal = Calendar.current
-        return cal.startOfDay(for: self)
-    }
-}
-

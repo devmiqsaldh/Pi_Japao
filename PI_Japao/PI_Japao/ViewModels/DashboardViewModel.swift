@@ -5,7 +5,7 @@ import Observation
 class DashboardViewModel {
     var currentPresenceSession: AttendanceSessionDTO?
     var currentExitSession: AttendanceSessionDTO?
-    var beacons: [BeaconDTO] = []
+    var students: [StudentDTO] = []
     var isLoading = false
     
     private let apiService = APIService.shared
@@ -13,7 +13,7 @@ class DashboardViewModel {
     
     func start() async throws {
         try await loadCurrentSessions()
-        try await loadBeacons()
+        try await loadStudents()
         startAutoRefresh()
     }
     
@@ -44,8 +44,8 @@ class DashboardViewModel {
         currentExitSession = sessions.first { $0.kind == .exit }
     }
     
-    private func loadBeacons() async throws {
-        beacons = try await apiService.fetchBeacons()
+    private func loadStudents() async throws {
+        students = try await apiService.fetchStudents()
     }
     
     func reportDetection(beaconID: String) async throws {

@@ -66,6 +66,46 @@ struct BeaconCard: View {
     }
 }
 
+struct StudentCard: View {
+    let student: StudentDTO
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Circle()
+                .fill(AppTheme.primaryColor)
+                .frame(width: 40, height: 40)
+                .overlay {
+                    Text(String(student.name.prefix(1).uppercased()))
+                        .font(.headline)
+                        .foregroundColor(.white)
+                }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(student.name)
+                    .font(.headline)
+                if let beacon = student.beacon {
+                    HStack(spacing: 4) {
+                        Image(systemName: "antenna.radiowaves.left.and.right")
+                            .font(.caption2)
+                        Text(beacon.beaconID)
+                            .font(.caption)
+                    }
+                    .foregroundStyle(.secondary)
+                }
+            }
+            Spacer()
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundColor(AppTheme.successColor)
+        }
+        .padding()
+        .background(Color.white)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(AppTheme.primaryColor.opacity(0.2), lineWidth: 1)
+        )
+        .cornerRadius(8)
+    }
+}
+
 
 struct Badge: View {
     let count: Int

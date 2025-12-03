@@ -50,34 +50,40 @@ struct DashboardView: View {
                         .padding()
                         .cardStyle()
                         
-                        // Beacons Card
+                        // Alunos Card
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
-                                Image(systemName: "antenna.radiowaves.left.and.right")
+                                Image(systemName: "person.2.fill")
                                     .font(.title2)
                                     .foregroundColor(AppTheme.accentColor)
-                                Text("Beacons Ativos")
+                                Text("Alunos")
                                     .font(AppTheme.headlineFont)
                                 Spacer()
-                                Text("\(viewModel.beacons.filter { $0.isActive }.count)")
+                                Text("\(viewModel.students.count)")
                                     .font(.title3)
                                     .fontWeight(.bold)
                                     .foregroundColor(AppTheme.primaryColor)
                             }
                             
-                            if viewModel.beacons.isEmpty {
+                            if viewModel.students.isEmpty {
                                 VStack(spacing: 8) {
-                                    Image(systemName: "antenna.radiowaves.left.and.right.slash")
+                                    Image(systemName: "person.2.slash")
                                         .font(.title)
                                         .foregroundStyle(.secondary)
-                                    Text("Nenhum beacon cadastrado")
+                                    Text("Nenhum aluno cadastrado")
                                         .foregroundStyle(.secondary)
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding()
                             } else {
-                                ForEach(viewModel.beacons.filter { $0.isActive }) { beacon in
-                                    BeaconCard(beacon: beacon)
+                                ForEach(viewModel.students.prefix(5)) { student in
+                                    StudentCard(student: student)
+                                }
+                                if viewModel.students.count > 5 {
+                                    Text("E mais \(viewModel.students.count - 5) aluno(s)...")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .padding(.top, 4)
                                 }
                             }
                         }

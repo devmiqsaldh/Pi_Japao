@@ -151,6 +151,19 @@ class APIService {
             }
             
             guard (200...299).contains(httpResponse.statusCode) else {
+                // Tentar extrair mensagem de erro do body se disponível
+                var errorMessage: String?
+                if !data.isEmpty {
+                    if let errorData = try? JSONDecoder().decode([String: String].self, from: data) {
+                        errorMessage = errorData["reason"] ?? errorData["error"] ?? errorData["message"]
+                    } else if let errorString = String(data: data, encoding: .utf8) {
+                        errorMessage = errorString
+                    }
+                }
+                // Criar erro customizado com mensagem se disponível
+                if let message = errorMessage {
+                    throw NSError(domain: "APIError", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: message])
+                }
                 throw APIError.httpError(httpResponse.statusCode)
             }
             

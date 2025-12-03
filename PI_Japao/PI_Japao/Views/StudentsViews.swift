@@ -127,7 +127,6 @@ struct StudentFormView: View {
     @State var email: String = ""
     @State var phone: String = ""
     @State var beaconID: String = ""
-    @State var beaconName: String = ""
     @State var isSaving = false
     
     var student: StudentDTO?
@@ -141,7 +140,6 @@ struct StudentFormView: View {
             _email = State(initialValue: s.email ?? "")
             _phone = State(initialValue: s.phone ?? "")
             _beaconID = State(initialValue: s.beacon?.beaconID ?? "")
-            _beaconName = State(initialValue: s.beacon?.name ?? "")
         }
     }
 
@@ -162,30 +160,25 @@ struct StudentFormView: View {
             }
             
             Section {
-                Text("Cadastre o Beacon do Aluno")
-                    .font(.headline)
-                Text("Cada aluno deve ter um beacon único. O UUID do beacon será usado para identificação.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            } header: {
-                Text("Beacon")
-            }
-            
-            Section("Informações do Beacon") {
                 TextField("UUID do Beacon", text: $beaconID)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .autocapitalization(.none)
                     .disabled(student != nil) // Não permite editar UUID de aluno existente
                 
-                TextField("Nome do Beacon (ex: Beacon João)", text: $beaconName)
-                    .textInputAutocapitalization(.words)
-                
                 if student == nil {
-                    Text("O beacon será criado automaticamente junto com o aluno.")
+                    Text("O beacon será criado automaticamente com o nome do aluno.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text("UUID do beacon não pode ser alterado após o cadastro.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+            } header: {
+                Text("Beacon")
+            } footer: {
+                Text("Cada aluno deve ter um beacon único. O UUID será usado para identificação.")
             }
         }
         .navigationTitle(student == nil ? "Novo Aluno" : "Editar Aluno")
@@ -199,7 +192,7 @@ struct StudentFormView: View {
                         await save()
                     }
                 }
-                .disabled(isSaving || name.trimmingCharacters(in: .whitespaces).isEmpty || beaconID.trimmingCharacters(in: .whitespaces).isEmpty || beaconName.trimmingCharacters(in: .whitespaces).isEmpty)
+                .disabled(isSaving || name.trimmingCharacters(in: .whitespaces).isEmpty || beaconID.trimmingCharacters(in: .whitespaces).isEmpty || email.trimmingCharacters(in: .whitespaces).isEmpty)
             }
         }
     }
@@ -208,11 +201,24 @@ struct StudentFormView: View {
         isSaving = true
         defer { isSaving = false }
         
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedBeaconID = beaconID.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedBeaconName = beaconName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedPhone = phone.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        guard !trimmedBeaconID.isEmpty, !trimmedBeaconName.isEmpty else {
-            errorHandler.show("UUID e nome do beacon são obrigatórios", type: .error)
+        // Validações
+        guard !trimmedName.isEmpty else {
+            errorHandler.show("Nome do aluno é obrigatório", type: .error)
+            return
+        }
+        
+        guard !trimmedEmail.isEmpty else {
+            errorHandler.show("Email é obrigatório para receber notificações", type: .error)
+            return
+        }
+        
+        guard !trimmedBeaconID.isEmpty else {
+            errorHandler.show("UUID do beacon é obrigatório", type: .error)
             return
         }
         
@@ -221,22 +227,25 @@ struct StudentFormView: View {
                 // Edição: atualizar apenas dados do aluno
                 try await viewModel.updateStudent(
                     id: id,
-                    name: name,
-                    email: email.isEmpty ? nil : email,
-                    phone: phone.isEmpty ? nil : phone,
+                    name: trimmedName,
+                    email: trimmedEmail,
+                    phone: trimmedPhone.isEmpty ? nil : trimmedPhone,
                     beaconID: nil // Não muda o beacon na edição
                 )
+                dismiss()
             } else {
                 // Criação: criar aluno com beacon
+                // Nome do beacon será gerado automaticamente: "Beacon de {nome do aluno}"
+                let beaconName = "Beacon de \(trimmedName)"
                 try await viewModel.createStudentWithBeacon(
-                    name: name,
-                    email: email.isEmpty ? nil : email,
-                    phone: phone.isEmpty ? nil : phone,
+                    name: trimmedName,
+                    email: trimmedEmail,
+                    phone: trimmedPhone.isEmpty ? nil : trimmedPhone,
                     beaconID: trimmedBeaconID,
-                    beaconName: trimmedBeaconName
+                    beaconName: beaconName
                 )
+                dismiss()
             }
-            dismiss()
         } catch {
             errorHandler.handleAPIError(error)
         }

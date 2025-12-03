@@ -17,11 +17,12 @@ struct SessionCard: View {
             }
             
             HStack {
-                Label(session.startTime, style: .time)
+                // Correção: Label(date, style: .time) não existe; use Text(date, style: .time)
+                Text(session.startTime, style: .time)
                     .font(.subheadline)
                 Text("→")
                     .foregroundStyle(.secondary)
-                Label(session.cutoffTime, style: .time)
+                Text(session.cutoffTime, style: .time)
                     .font(.subheadline)
             }
             .foregroundStyle(.secondary)
@@ -92,4 +93,3 @@ struct Badge: View {
             .cornerRadius(12)
     }
 }
-

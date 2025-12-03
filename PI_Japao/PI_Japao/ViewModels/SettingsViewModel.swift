@@ -5,22 +5,18 @@ import Observation
 class SettingsViewModel {
     var settings: AppSettingsDTO?
     var isLoading = false
-    var errorMessage: String?
     
     private let apiService = APIService.shared
     
-    func loadSettings() async {
+    func loadSettings() async throws {
         isLoading = true
-        errorMessage = nil
+        defer { isLoading = false }
         
         do {
             settings = try await apiService.fetchSettings()
         } catch {
-            errorMessage = "Erro ao carregar configurações: \(error.localizedDescription)"
-            print("❌ Erro: \(error)")
+            throw error
         }
-        
-        isLoading = false
     }
     
     func updateSettings(

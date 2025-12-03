@@ -5,22 +5,18 @@ import Observation
 class HistoryViewModel {
     var sessions: [AttendanceSessionDTO] = []
     var isLoading = false
-    var errorMessage: String?
     
     private let apiService = APIService.shared
     
-    func loadSessions() async {
+    func loadSessions() async throws {
         isLoading = true
-        errorMessage = nil
+        defer { isLoading = false }
         
         do {
             sessions = try await apiService.fetchSessions()
         } catch {
-            errorMessage = "Erro ao carregar histórico: \(error.localizedDescription)"
-            print("❌ Erro: \(error)")
+            throw error
         }
-        
-        isLoading = false
     }
     
     func loadSessionDetail(id: UUID) async throws -> SessionDetailDTO {

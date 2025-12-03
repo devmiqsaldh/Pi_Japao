@@ -2,39 +2,34 @@ import SwiftUI
 
 struct StudentsListView: View {
     @State private var viewModel = StudentViewModel()
+    @Environment(ErrorHandler.self) private var errorHandler
     @State private var showingAdd = false
 
     var body: some View {
         NavigationStack {
-            ZStack {
+            Group {
                 if viewModel.isLoading && viewModel.students.isEmpty {
                     ProgressView()
                         .scaleEffect(1.5)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if viewModel.students.isEmpty {
-                    VStack(spacing: 16) {
-                        Image(systemName: "person.2.fill")
-                            .font(.system(size: 60))
-                            .foregroundStyle(AppTheme.primaryColor.opacity(0.3))
-                        Text("Nenhum aluno cadastrado")
-                            .font(.headline)
-                            .foregroundStyle(.secondary)
-                        Text("Toque no botão + para adicionar")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    EmptyStateView(
+                        icon: "person.2.fill",
+                        title: "Nenhum aluno cadastrado",
+                        message: "Toque no botão + para adicionar um aluno"
+                    )
                 } else {
                     List {
                         ForEach(viewModel.students) { student in
                             NavigationLink {
                                 StudentFormView(student: student, viewModel: viewModel)
                             } label: {
-                                HStack {
+                                HStack(spacing: 12) {
                                     Circle()
                                         .fill(AppTheme.primaryColor)
                                         .frame(width: 40, height: 40)
                                         .overlay {
-                                            Text(String(student.name.prefix(1)))
+                                            Text(String(student.name.prefix(1).uppercased()))
                                                 .font(.headline)
                                                 .foregroundColor(.white)
                                         }
@@ -64,14 +59,6 @@ struct StudentsListView: View {
                         .onDelete(perform: delete)
                     }
                 }
-                
-                if let error = viewModel.errorMessage {
-                    VStack {
-                        Spacer()
-                        ErrorCard(message: error)
-                            .padding()
-                    }
-                }
             }
             .navigationTitle("Alunos")
             .navigationBarTitleDisplayMode(.large)
@@ -91,12 +78,20 @@ struct StudentsListView: View {
                 }
             }
             .task {
-                await viewModel.loadBeacons()
-                await viewModel.loadStudents()
+                await loadData()
             }
             .refreshable {
                 await viewModel.loadStudents()
             }
+        }
+    }
+    
+    private func loadData() async {
+        do {
+            try await viewModel.loadBeacons()
+            try await viewModel.loadStudents()
+        } catch {
+            errorHandler.handleAPIError(error)
         }
     }
 
@@ -104,7 +99,11 @@ struct StudentsListView: View {
         Task {
             for idx in offsets {
                 if let id = viewModel.students[idx].id {
-                    try? await viewModel.deleteStudent(id: id)
+                    do {
+                        try await viewModel.deleteStudent(id: id)
+                    } catch {
+                        errorHandler.handleAPIError(error)
+                    }
                 }
             }
         }
@@ -113,6 +112,7 @@ struct StudentsListView: View {
 
 struct StudentFormView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(ErrorHandler.self) private var errorHandler
     @State var name: String = ""
     @State var email: String = ""
     @State var phone: String = ""
@@ -202,7 +202,7 @@ struct StudentFormView: View {
             }
             dismiss()
         } catch {
-            print("❌ Erro ao salvar: \(error)")
+            errorHandler.handleAPIError(error)
         }
     }
 }

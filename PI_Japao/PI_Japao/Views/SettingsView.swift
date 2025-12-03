@@ -13,6 +13,7 @@ struct SettingsView: View {
     @State private var backendURL = ""
     @State private var isSaving = false
     @State private var showSuccessAlert = false
+    @Environment(ErrorHandler.self) private var errorHandler
 
     var body: some View {
         Form {
@@ -75,16 +76,6 @@ struct SettingsView: View {
                 }
             }
             
-            if let error = viewModel.errorMessage {
-                Section {
-                    HStack {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(AppTheme.errorColor)
-                        Text(error)
-                            .foregroundStyle(AppTheme.errorColor)
-                    }
-                }
-            }
         }
         .navigationTitle("Configurações")
         .navigationBarTitleDisplayMode(.large)
@@ -105,21 +96,22 @@ struct SettingsView: View {
                 .disabled(isSaving)
             }
         }
-        .alert("Configurações salvas!", isPresented: $showSuccessAlert) {
-            Button("OK", role: .cancel) { }
-        }
         .task {
             backendURL = AppConfig.shared.backendURL
-            await viewModel.loadSettings()
-            if let s = viewModel.settings {
-                presenceStart = s.presenceStart
-                presenceCutoff = s.presenceCutoff
-                exitStart = s.exitStart
-                exitCutoff = s.exitCutoff
-                presenceMessage = s.presenceMessage
-                absenceMessage = s.absenceMessage
-                leftMessage = s.leftMessage
-                notLeftMessage = s.notLeftMessage
+            do {
+                try await viewModel.loadSettings()
+                if let s = viewModel.settings {
+                    presenceStart = s.presenceStart
+                    presenceCutoff = s.presenceCutoff
+                    exitStart = s.exitStart
+                    exitCutoff = s.exitCutoff
+                    presenceMessage = s.presenceMessage
+                    absenceMessage = s.absenceMessage
+                    leftMessage = s.leftMessage
+                    notLeftMessage = s.notLeftMessage
+                }
+            } catch {
+                errorHandler.handleAPIError(error)
             }
         }
     }
@@ -130,7 +122,10 @@ struct SettingsView: View {
         
         // Salvar URL do backend
         if !backendURL.isEmpty {
-            AppConfig.shared.backendURL = backendURL.trimmingCharacters(in: .whitespacesAndNewlines)
+            let trimmedURL = backendURL.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmedURL.isEmpty {
+                AppConfig.shared.backendURL = trimmedURL
+            }
         }
         
         do {
@@ -144,9 +139,9 @@ struct SettingsView: View {
                 leftMessage: leftMessage,
                 notLeftMessage: notLeftMessage
             )
-            showSuccessAlert = true
+            errorHandler.show("Configurações salvas com sucesso!", type: .success)
         } catch {
-            print("❌ Erro ao salvar: \(error)")
+            errorHandler.handleAPIError(error)
         }
     }
 }

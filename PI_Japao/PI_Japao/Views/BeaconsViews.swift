@@ -3,37 +3,32 @@ import SwiftUI
 struct BeaconsListView: View {
     @State private var viewModel = BeaconViewModel()
     @Environment(AttendanceManager.self) private var attendanceManager
+    @Environment(ErrorHandler.self) private var errorHandler
     @State private var showingAdd = false
     @State private var selectedBeacon: BeaconDTO?
 
     var body: some View {
         NavigationStack {
-            ZStack {
+            Group {
                 if viewModel.isLoading && viewModel.beacons.isEmpty {
                     ProgressView()
                         .scaleEffect(1.5)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if viewModel.beacons.isEmpty {
-                    VStack(spacing: 16) {
-                        Image(systemName: "antenna.radiowaves.left.and.right")
-                            .font(.system(size: 60))
-                            .foregroundStyle(AppTheme.primaryColor.opacity(0.3))
-                        Text("Nenhum beacon cadastrado")
-                            .font(.headline)
-                            .foregroundStyle(.secondary)
-                        Text("Toque no botão + para adicionar")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    EmptyStateView(
+                        icon: "antenna.radiowaves.left.and.right",
+                        title: "Nenhum beacon cadastrado",
+                        message: "Toque no botão + para adicionar um beacon"
+                    )
                 } else {
                     List {
                         ForEach(viewModel.beacons) { beacon in
                             NavigationLink {
                                 BeaconFormView(beacon: beacon, viewModel: viewModel)
                             } label: {
-                                HStack {
+                                HStack(spacing: 12) {
                                     Circle()
-                                        .fill(beacon.isActive ? AppTheme.accentColor : Color.gray)
+                                        .fill(beacon.isActive ? AppTheme.accentColor : Color.gray.opacity(0.5))
                                         .frame(width: 12, height: 12)
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text(beacon.name)
@@ -48,7 +43,11 @@ struct BeaconsListView: View {
                                             get: { beacon.isActive },
                                             set: { newValue in
                                                 Task {
-                                                    try? await viewModel.updateBeacon(id: id, isActive: newValue)
+                                                    do {
+                                                        try await viewModel.updateBeacon(id: id, isActive: newValue)
+                                                    } catch {
+                                                        // Erro será tratado pelo ErrorHandler
+                                                    }
                                                 }
                                             }
                                         ))
@@ -59,14 +58,6 @@ struct BeaconsListView: View {
                             }
                         }
                         .onDelete(perform: delete)
-                    }
-                }
-                
-                if let error = viewModel.errorMessage {
-                    VStack {
-                        Spacer()
-                        ErrorCard(message: error)
-                            .padding()
                     }
                 }
             }
@@ -88,11 +79,19 @@ struct BeaconsListView: View {
                 }
             }
             .task {
-                await viewModel.loadBeacons()
+                await loadBeacons()
             }
             .refreshable {
-                await viewModel.loadBeacons()
+                await loadBeacons()
             }
+        }
+    }
+    
+    private func loadBeacons() async {
+        do {
+            try await viewModel.loadBeacons()
+        } catch {
+            errorHandler.handleAPIError(error)
         }
     }
 
@@ -100,7 +99,11 @@ struct BeaconsListView: View {
         Task {
             for idx in offsets {
                 if let id = viewModel.beacons[idx].id {
-                    try? await viewModel.deleteBeacon(id: id)
+                    do {
+                        try await viewModel.deleteBeacon(id: id)
+                    } catch {
+                        errorHandler.handleAPIError(error)
+                    }
                 }
             }
         }
@@ -110,6 +113,7 @@ struct BeaconsListView: View {
 struct BeaconFormView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(AttendanceManager.self) private var attendanceManager
+    @Environment(ErrorHandler.self) private var errorHandler
     @State var beaconID: String = ""
     @State var name: String = ""
     @State var isActive: Bool = true
@@ -172,7 +176,7 @@ struct BeaconFormView: View {
             }
             dismiss()
         } catch {
-            print("❌ Erro ao salvar: \(error)")
+            errorHandler.handleAPIError(error)
         }
     }
 }

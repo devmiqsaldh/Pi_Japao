@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @Environment(AttendanceManager.self) private var attendanceManager
     @State private var connectionStatus = ConnectionStatusViewModel()
+    @State private var errorHandler = ErrorHandler()
 
     var body: some View {
         TabView {
@@ -39,42 +40,22 @@ struct ContentView: View {
                 }
         }
         .tint(AppTheme.primaryColor)
-        .overlay(alignment: .top) {
-            if !connectionStatus.isConnected {
-                ConnectionBanner(status: connectionStatus)
-            }
-        }
+        .toast(
+            message: errorHandler.currentError ?? "",
+            type: errorHandler.errorType,
+            isPresented: $errorHandler.showError
+        )
+        .environment(errorHandler)
         .task {
-            await connectionStatus.checkConnection()
+            await checkConnection()
         }
     }
-}
-
-struct ConnectionBanner: View {
-    @State var status: ConnectionStatusViewModel
     
-    var body: some View {
-        VStack {
-            HStack {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundColor(.white)
-                Text(status.errorMessage ?? "Sem conexão com o backend")
-                    .font(.subheadline)
-                    .foregroundColor(.white)
-                Spacer()
-                Button {
-                    Task {
-                        await status.checkConnection()
-                    }
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                        .foregroundColor(.white)
-                }
-            }
-            .padding()
-            .background(AppTheme.errorColor)
+    private func checkConnection() async {
+        await connectionStatus.checkConnection()
+        if !connectionStatus.isConnected, let error = connectionStatus.errorMessage {
+            errorHandler.show(error, type: .warning)
         }
-        .transition(.move(edge: .top))
     }
 }
 

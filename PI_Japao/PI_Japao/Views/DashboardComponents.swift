@@ -58,26 +58,6 @@ struct BeaconCard: View {
     }
 }
 
-struct ErrorCard: View {
-    let message: String
-    
-    var body: some View {
-        HStack {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundColor(AppTheme.errorColor)
-            Text(message)
-                .font(.subheadline)
-            Spacer()
-        }
-        .padding()
-        .background(AppTheme.errorColor.opacity(0.1))
-        .cornerRadius(8)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(AppTheme.errorColor.opacity(0.3), lineWidth: 1)
-        )
-    }
-}
 
 struct Badge: View {
     let count: Int

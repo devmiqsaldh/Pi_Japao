@@ -2,33 +2,28 @@ import SwiftUI
 
 struct HistoryView: View {
     @State private var viewModel = HistoryViewModel()
+    @Environment(ErrorHandler.self) private var errorHandler
 
     var body: some View {
         NavigationStack {
-            ZStack {
+            Group {
                 if viewModel.isLoading && viewModel.sessions.isEmpty {
                     ProgressView()
                         .scaleEffect(1.5)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if viewModel.sessions.isEmpty {
-                    VStack(spacing: 16) {
-                        Image(systemName: "clock.fill")
-                            .font(.system(size: 60))
-                            .foregroundStyle(AppTheme.primaryColor.opacity(0.3))
-                        Text("Nenhuma sessão encontrada")
-                            .font(.headline)
-                            .foregroundStyle(.secondary)
-                        Text("As sessões aparecerão aqui após detecções")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    EmptyStateView(
+                        icon: "clock.fill",
+                        title: "Nenhuma sessão encontrada",
+                        message: "As sessões aparecerão aqui após detecções de beacons"
+                    )
                 } else {
                     List {
                         ForEach(viewModel.sessions) { session in
                             NavigationLink {
                                 SessionDetailView(sessionID: session.id!, viewModel: viewModel)
                             } label: {
-                                HStack {
+                                HStack(spacing: 12) {
                                     Image(systemName: session.kind == .presence ? "checkmark.circle.fill" : "arrow.right.circle.fill")
                                         .font(.title2)
                                         .foregroundColor(session.kind == .presence ? AppTheme.accentColor : AppTheme.secondaryColor)
@@ -49,23 +44,21 @@ struct HistoryView: View {
                         }
                     }
                 }
-                
-                if let error = viewModel.errorMessage {
-                    VStack {
-                        Spacer()
-                        ErrorCard(message: error)
-                            .padding()
-                    }
-                }
             }
             .navigationTitle("Histórico")
             .navigationBarTitleDisplayMode(.large)
             .task {
-                await viewModel.loadSessions()
+                await loadSessions()
             }
             .refreshable {
-                await viewModel.loadSessions()
+                await loadSessions()
             }
+        }
+    }
+    
+    private func loadSessions() async {
+        do {
+            await viewModel.loadSessions()
         }
     }
 }
@@ -74,8 +67,8 @@ struct SessionDetailView: View {
     let sessionID: UUID
     @State private var detail: SessionDetailDTO?
     @State private var isLoading = false
-    @State private var errorMessage: String?
     var viewModel: HistoryViewModel
+    @Environment(ErrorHandler.self) private var errorHandler
 
     var body: some View {
         List {
@@ -101,11 +94,6 @@ struct SessionDetailView: View {
                     }
                 }
             }
-            
-            if let error = errorMessage {
-                Text(error)
-                    .foregroundStyle(.red)
-            }
         }
         .navigationTitle(detail?.session.kind == .presence ? "Detalhe Presença" : "Detalhe Saída")
         .task {
@@ -115,15 +103,13 @@ struct SessionDetailView: View {
     
     private func loadDetail() async {
         isLoading = true
-        errorMessage = nil
+        defer { isLoading = false }
         
         do {
             detail = try await viewModel.loadSessionDetail(id: sessionID)
         } catch {
-            errorMessage = "Erro ao carregar detalhes: \(error.localizedDescription)"
+            errorHandler.handleAPIError(error)
         }
-        
-        isLoading = false
     }
 }
 

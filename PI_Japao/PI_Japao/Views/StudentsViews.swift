@@ -217,8 +217,22 @@ struct StudentFormView: View {
             return
         }
         
+        // Validação básica de email
+        let emailRegex = #"^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"#
+        let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
+        guard emailPredicate.evaluate(with: trimmedEmail) else {
+            errorHandler.show("Email inválido. Verifique o formato.", type: .error)
+            return
+        }
+        
         guard !trimmedBeaconID.isEmpty else {
             errorHandler.show("UUID do beacon é obrigatório", type: .error)
+            return
+        }
+        
+        // Validação básica de UUID
+        guard UUID(uuidString: trimmedBeaconID) != nil else {
+            errorHandler.show("UUID do beacon inválido. Use um formato válido (ex: 550e8400-e29b-41d4-a716-446655440000)", type: .error)
             return
         }
         
@@ -232,6 +246,9 @@ struct StudentFormView: View {
                     phone: trimmedPhone.isEmpty ? nil : trimmedPhone,
                     beaconID: nil // Não muda o beacon na edição
                 )
+                errorHandler.show("Aluno atualizado com sucesso!", type: .success)
+                // Aguardar um pouco para mostrar mensagem de sucesso
+                try? await Task.sleep(nanoseconds: 500_000_000)
                 dismiss()
             } else {
                 // Criação: criar aluno com beacon
@@ -244,6 +261,9 @@ struct StudentFormView: View {
                     beaconID: trimmedBeaconID,
                     beaconName: beaconName
                 )
+                errorHandler.show("Aluno cadastrado com sucesso!", type: .success)
+                // Aguardar um pouco para mostrar mensagem de sucesso
+                try? await Task.sleep(nanoseconds: 500_000_000)
                 dismiss()
             }
         } catch {

@@ -5,26 +5,27 @@ Sistema completo para avisar pais quando filhos chegam na escola usando beacons,
 ## 📁 Estrutura do Projeto
 
 ```
-PI_Japao/
-├── Backend/              # Backend Swift Vapor
-├── ESP32/                # Código para ESP32
-├── PI_Japao/             # Projeto iOS (SwiftUI + MVVM)
-│   ├── Models/           # Modelos de dados
-│   ├── Views/            # Camada de apresentação
-│   ├── ViewModels/       # Camada de lógica
-│   ├── Services/         # Serviços (API, Scanner)
-│   └── Resources/        # Recursos (Assets)
-└── Documentação/
+Pi_Japao/
+├── PI_Japao/             # Projeto principal
+│   ├── Backend/          # Backend Swift Vapor
+│   ├── ESP32/            # Código para ESP32
+│   └── PI_Japao/         # Projeto iOS (SwiftUI + MVVM)
+│       ├── Models/       # Modelos de dados
+│       ├── Views/        # Camada de apresentação
+│       ├── ViewModels/   # Camada de lógica
+│       ├── Services/     # Serviços (API, Scanner)
+│       └── Resources/    # Recursos (Assets)
+└── README.md             # Este arquivo
 ```
 
-📖 **Ver [ESTRUTURA_PROJETO.md](ESTRUTURA_PROJETO.md) para detalhes completos da arquitetura MVVM**
+📖 **Ver [PI_Japao/ESTRUTURA_PROJETO.md](PI_Japao/ESTRUTURA_PROJETO.md) para detalhes completos da arquitetura MVVM**
 
 ## 🚀 Início Rápido
 
 ### 1. Backend
 
 ```bash
-cd Backend
+cd PI_Japao/Backend
 swift run
 ```
 
@@ -32,7 +33,7 @@ O servidor iniciará em `http://localhost:8080`
 
 ### 2. App iOS
 
-1. Abra `PI_Japao.xcodeproj` no Xcode
+1. Abra `PI_Japao/PI_Japao.xcodeproj` no Xcode
 2. **Importante**: Se os arquivos não aparecerem, adicione manualmente:
    - Clique com botão direito no projeto → "Add Files to PI_Japao"
    - Adicione as pastas: `Views/`, `ViewModels/`, `Services/`, `Models/`, `Resources/`
@@ -41,16 +42,17 @@ O servidor iniciará em `http://localhost:8080`
 
 ### 3. ESP32
 
-1. Abra `ESP32/esp32_beacon_scanner.ino` no Arduino IDE
+1. Abra `PI_Japao/ESP32/esp32_beacon_scanner.ino` no Arduino IDE
 2. Configure WiFi e URL do backend
 3. Faça upload para o ESP32
 
 ## 📚 Documentação
 
-- **[ESTRUTURA_PROJETO.md](ESTRUTURA_PROJETO.md)** - Arquitetura MVVM completa
-- **[GUIA_CADASTRO_BEACONS.md](GUIA_CADASTRO_BEACONS.md)** - Como cadastrar beacons e alunos
-- **[Backend/README.md](Backend/README.md)** - Documentação do backend
-- **[ESP32/README.md](ESP32/README.md)** - Guia de integração ESP32
+- **[PI_Japao/ESTRUTURA_PROJETO.md](PI_Japao/ESTRUTURA_PROJETO.md)** - Arquitetura MVVM completa
+- **[PI_Japao/GUIA_CADASTRO_BEACONS.md](PI_Japao/GUIA_CADASTRO_BEACONS.md)** - Como cadastrar beacons e alunos
+- **[PI_Japao/CONFIGURAR_XCODE.md](PI_Japao/CONFIGURAR_XCODE.md)** - Guia de configuração do Xcode
+- **[PI_Japao/Backend/README.md](PI_Japao/Backend/README.md)** - Documentação do backend
+- **[PI_Japao/ESP32/README.md](PI_Japao/ESP32/README.md)** - Guia de integração ESP32
 
 ## 🏗️ Arquitetura MVVM
 
@@ -124,18 +126,18 @@ O servidor iniciará em `http://localhost:8080`
 ## 🔧 Configuração
 
 ### Backend
-- Edite `Backend/Sources/App/configure.swift` se necessário
+- Edite `PI_Japao/Backend/Sources/App/configure.swift` se necessário
 - Banco de dados SQLite criado automaticamente em `attendance.db`
 
 ### App iOS
-- Configure URL do backend em `Services/APIService.swift`
+- Configure URL do backend em `PI_Japao/PI_Japao/Services/APIService.swift`
 - Adicione permissões de localização no `Info.plist`:
   - `NSLocationAlwaysAndWhenInUseUsageDescription`
   - `NSLocationAlwaysUsageDescription`
   - `NSLocationWhenInUseUsageDescription`
 
 ### ESP32
-- Configure WiFi em `ESP32/esp32_beacon_scanner.ino`
+- Configure WiFi em `PI_Japao/ESP32/esp32_beacon_scanner.ino`
 - Configure URL do backend (use IP local da máquina)
 
 ## 🐛 Troubleshooting
@@ -145,6 +147,7 @@ O servidor iniciará em `http://localhost:8080`
 2. Selecione "Add Files to PI_Japao"
 3. Adicione as pastas: `Views/`, `ViewModels/`, `Services/`, `Models/`, `Resources/`
 4. Certifique-se de marcar "Create groups" e "Add to targets: PI_Japao"
+5. Veja [PI_Japao/CONFIGURAR_XCODE.md](PI_Japao/CONFIGURAR_XCODE.md) para detalhes
 
 ### Backend não inicia
 - Verifique se a porta 8080 está livre
@@ -158,7 +161,7 @@ O servidor iniciará em `http://localhost:8080`
 ## 📞 Suporte
 
 Para mais informações, consulte:
-- [ESTRUTURA_PROJETO.md](ESTRUTURA_PROJETO.md) - Arquitetura detalhada
-- [GUIA_CADASTRO_BEACONS.md](GUIA_CADASTRO_BEACONS.md) - Guia de uso
-- [Backend/README.md](Backend/README.md) - Documentação do backend
-- [ESP32/README.md](ESP32/README.md) - Guia ESP32
+- [PI_Japao/ESTRUTURA_PROJETO.md](PI_Japao/ESTRUTURA_PROJETO.md) - Arquitetura detalhada
+- [PI_Japao/GUIA_CADASTRO_BEACONS.md](PI_Japao/GUIA_CADASTRO_BEACONS.md) - Guia de uso
+- [PI_Japao/Backend/README.md](PI_Japao/Backend/README.md) - Documentação do backend
+- [PI_Japao/ESP32/README.md](PI_Japao/ESP32/README.md) - Guia ESP32

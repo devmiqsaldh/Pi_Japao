@@ -20,7 +20,7 @@ Pi_Japao/
 
 📖 **Ver [PI_Japao/ESTRUTURA_PROJETO.md](PI_Japao/ESTRUTURA_PROJETO.md) para detalhes completos da arquitetura MVVM**
 
-## 🚀 Início Rápido
+##  Início Rápido
 
 ### 1. Backend
 
@@ -46,7 +46,7 @@ O servidor iniciará em `http://localhost:8080`
 2. Configure WiFi e URL do backend
 3. Faça upload para o ESP32
 
-## 📚 Documentação
+##  Documentação
 
 - **[PI_Japao/ESTRUTURA_PROJETO.md](PI_Japao/ESTRUTURA_PROJETO.md)** - Arquitetura MVVM completa
 - **[PI_Japao/GUIA_CADASTRO_BEACONS.md](PI_Japao/GUIA_CADASTRO_BEACONS.md)** - Como cadastrar beacons e alunos
@@ -54,7 +54,7 @@ O servidor iniciará em `http://localhost:8080`
 - **[PI_Japao/Backend/README.md](PI_Japao/Backend/README.md)** - Documentação do backend
 - **[PI_Japao/ESP32/README.md](PI_Japao/ESP32/README.md)** - Guia de integração ESP32
 
-## 🏗️ Arquitetura MVVM
+##  Arquitetura MVVM
 
 ### Models
 - `Models.swift` - Enums e tipos compartilhados
@@ -79,14 +79,14 @@ O servidor iniciará em `http://localhost:8080`
 - `APIService.swift` - Cliente HTTP para backend
 - `BeaconScannerService.swift` - Detecção de beacons (CoreLocation)
 
-## 🔄 Fluxo de Funcionamento
+##  Fluxo de Funcionamento
 
 1. **Cadastro**: Beacons são cadastrados no app e associados a alunos
 2. **Detecção**: ESP32 detecta beacons próximos e envia para o backend
 3. **Processamento**: Backend verifica se o beacon está cadastrado e dentro da janela de tempo
 4. **Notificação**: Mensagens são enviadas aos pais (email/SMS) via templates configuráveis
 
-## 📡 API Endpoints
+##  API Endpoints
 
 ### Beacons
 - `GET /api/beacons` - Listar beacons
@@ -123,7 +123,7 @@ O servidor iniciará em `http://localhost:8080`
 - ✅ Configuração de horários e mensagens
 - ✅ Arquitetura MVVM limpa e testável
 
-## 🔧 Configuração
+##  Configuração
 
 ### Backend
 - Edite `PI_Japao/Backend/Sources/App/configure.swift` se necessário
@@ -140,7 +140,7 @@ O servidor iniciará em `http://localhost:8080`
 - Configure WiFi em `PI_Japao/ESP32/esp32_beacon_scanner.ino`
 - Configure URL do backend (use IP local da máquina)
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Arquivos não aparecem no Xcode
 1. Clique com botão direito no projeto
@@ -158,7 +158,7 @@ O servidor iniciará em `http://localhost:8080`
 - Confirme que o beacon está transmitindo
 - Verifique a distância (máximo ~10 metros)
 
-## 📞 Suporte
+##  Suporte
 
 Para mais informações, consulte:
 - [PI_Japao/ESTRUTURA_PROJETO.md](PI_Japao/ESTRUTURA_PROJETO.md) - Arquitetura detalhada

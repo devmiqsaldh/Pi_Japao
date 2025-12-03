@@ -57,23 +57,54 @@ struct SettingsView: View {
             }
             
             Section {
-                TextField("Mensagem Presença", text: $presenceMessage, axis: .vertical)
-                    .lineLimit(3...6)
-                TextField("Mensagem Falta", text: $absenceMessage, axis: .vertical)
-                    .lineLimit(3...6)
-                TextField("Mensagem Saída", text: $leftMessage, axis: .vertical)
-                    .lineLimit(3...6)
-                TextField("Mensagem Não Saiu", text: $notLeftMessage, axis: .vertical)
-                    .lineLimit(3...6)
-                Text("Use {name} e {time} como variáveis nos templates.")
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Mensagem de Presença")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    TextField("Ex: {name} - Presença confirmada", text: $presenceMessage, axis: .vertical)
+                        .lineLimit(2...4)
+                        .textInputAutocapitalization(.sentences)
+                }
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Mensagem de Falta")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    TextField("Ex: {name} - Falta registrada", text: $absenceMessage, axis: .vertical)
+                        .lineLimit(2...4)
+                        .textInputAutocapitalization(.sentences)
+                }
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Mensagem de Saída")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    TextField("Ex: {name} - Saída confirmada", text: $leftMessage, axis: .vertical)
+                        .lineLimit(2...4)
+                        .textInputAutocapitalization(.sentences)
+                }
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Mensagem de Não Saiu")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    TextField("Ex: {name} - Não saiu", text: $notLeftMessage, axis: .vertical)
+                        .lineLimit(2...4)
+                        .textInputAutocapitalization(.sentences)
+                }
+                
+                Text("Use {name} para o nome do aluno. As mensagens são salvas e permanecem até serem alteradas.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .padding(.top, 4)
             } header: {
                 HStack {
                     Image(systemName: "message.fill")
                         .foregroundColor(AppTheme.primaryColor)
-                    Text("Mensagens")
+                    Text("Mensagens de Notificação")
                 }
+            } footer: {
+                Text("As mensagens são enviadas por email quando o sistema detecta presença, falta, saída ou não saída do aluno.")
             }
             
         }
@@ -98,24 +129,56 @@ struct SettingsView: View {
         }
         .task {
             backendURL = AppConfig.shared.backendURL
-            do {
-                try await viewModel.loadSettings()
-                if let s = viewModel.settings {
-                    presenceStart = s.presenceStart
-                    presenceCutoff = s.presenceCutoff
-                    exitStart = s.exitStart
-                    exitCutoff = s.exitCutoff
-                    presenceMessage = s.presenceMessage
-                    absenceMessage = s.absenceMessage
-                    leftMessage = s.leftMessage
-                    notLeftMessage = s.notLeftMessage
-                }
-            } catch {
-                errorHandler.handleAPIError(error)
+            await loadSettings()
+        }
+        .onAppear {
+            // Garantir que sempre tenha valores padrão se não carregou ainda
+            if presenceMessage.isEmpty {
+                presenceMessage = "{name} - Presença confirmada"
+            }
+            if absenceMessage.isEmpty {
+                absenceMessage = "{name} - Falta registrada"
+            }
+            if leftMessage.isEmpty {
+                leftMessage = "{name} - Saída confirmada"
+            }
+            if notLeftMessage.isEmpty {
+                notLeftMessage = "{name} - Não saiu"
             }
         }
     }
 
+    private func loadSettings() async {
+        do {
+            try await viewModel.loadSettings()
+            if let s = viewModel.settings {
+                presenceStart = s.presenceStart
+                presenceCutoff = s.presenceCutoff
+                exitStart = s.exitStart
+                exitCutoff = s.exitCutoff
+                // Garantir que mensagens sempre tenham valores
+                presenceMessage = s.presenceMessage.isEmpty ? "{name} - Presença confirmada" : s.presenceMessage
+                absenceMessage = s.absenceMessage.isEmpty ? "{name} - Falta registrada" : s.absenceMessage
+                leftMessage = s.leftMessage.isEmpty ? "{name} - Saída confirmada" : s.leftMessage
+                notLeftMessage = s.notLeftMessage.isEmpty ? "{name} - Não saiu" : s.notLeftMessage
+            } else {
+                // Se não houver configurações, usar valores padrão
+                setDefaultMessages()
+            }
+        } catch {
+            // Se houver erro ao carregar, usar valores padrão
+            setDefaultMessages()
+            errorHandler.handleAPIError(error)
+        }
+    }
+    
+    private func setDefaultMessages() {
+        presenceMessage = "{name} - Presença confirmada"
+        absenceMessage = "{name} - Falta registrada"
+        leftMessage = "{name} - Saída confirmada"
+        notLeftMessage = "{name} - Não saiu"
+    }
+    
     private func save() async {
         isSaving = true
         defer { isSaving = false }
@@ -128,18 +191,34 @@ struct SettingsView: View {
             }
         }
         
+        // Garantir que mensagens não estejam vazias (usar padrão se necessário)
+        let finalPresenceMessage = presenceMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty 
+            ? "{name} - Presença confirmada" 
+            : presenceMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+        let finalAbsenceMessage = absenceMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty 
+            ? "{name} - Falta registrada" 
+            : absenceMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+        let finalLeftMessage = leftMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty 
+            ? "{name} - Saída confirmada" 
+            : leftMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+        let finalNotLeftMessage = notLeftMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty 
+            ? "{name} - Não saiu" 
+            : notLeftMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+        
         do {
             try await viewModel.updateSettings(
                 presenceStart: presenceStart,
                 presenceCutoff: presenceCutoff,
                 exitStart: exitStart,
                 exitCutoff: exitCutoff,
-                presenceMessage: presenceMessage,
-                absenceMessage: absenceMessage,
-                leftMessage: leftMessage,
-                notLeftMessage: notLeftMessage
+                presenceMessage: finalPresenceMessage,
+                absenceMessage: finalAbsenceMessage,
+                leftMessage: finalLeftMessage,
+                notLeftMessage: finalNotLeftMessage
             )
             errorHandler.show("Configurações salvas com sucesso!", type: .success)
+            // Recarregar para garantir sincronização
+            await loadSettings()
         } catch {
             errorHandler.handleAPIError(error)
         }

@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import SwiftUI
 
 @Observable
 class ErrorHandler {
@@ -57,4 +58,3 @@ class ErrorHandler {
         }
     }
 }
-

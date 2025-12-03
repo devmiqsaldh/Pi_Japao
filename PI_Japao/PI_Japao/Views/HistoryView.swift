@@ -20,9 +20,30 @@ struct HistoryView: View {
                 } else {
                     List {
                         ForEach(viewModel.sessions) { session in
-                            NavigationLink {
-                                SessionDetailView(sessionID: session.id!, viewModel: viewModel)
-                            } label: {
+                            if let id = session.id {
+                                NavigationLink {
+                                    SessionDetailView(sessionID: id, viewModel: viewModel)
+                                } label: {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: session.kind == .presence ? "checkmark.circle.fill" : "arrow.right.circle.fill")
+                                            .font(.title2)
+                                            .foregroundColor(session.kind == .presence ? AppTheme.accentColor : AppTheme.secondaryColor)
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(session.kind == .presence ? "Presença" : "Saída")
+                                                .font(.headline)
+                                            Text(session.date, style: .date)
+                                                .font(.subheadline)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                        Spacer()
+                                        if let count = session.recordsCount {
+                                            Badge(count: count)
+                                        }
+                                    }
+                                    .padding(.vertical, 4)
+                                }
+                            } else {
+                                // Sessão sem ID (defensivo): apenas mostra como linha estática
                                 HStack(spacing: 12) {
                                     Image(systemName: session.kind == .presence ? "checkmark.circle.fill" : "arrow.right.circle.fill")
                                         .font(.title2)
@@ -58,7 +79,9 @@ struct HistoryView: View {
     
     private func loadSessions() async {
         do {
-            await viewModel.loadSessions()
+            try await viewModel.loadSessions()
+        } catch {
+            errorHandler.handleAPIError(error)
         }
     }
 }

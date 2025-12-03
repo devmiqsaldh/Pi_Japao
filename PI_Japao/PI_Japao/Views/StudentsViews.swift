@@ -81,7 +81,11 @@ struct StudentsListView: View {
                 await loadData()
             }
             .refreshable {
-                await viewModel.loadStudents()
+                do {
+                    try await viewModel.loadStudents()
+                } catch {
+                    errorHandler.handleAPIError(error)
+                }
             }
         }
     }
@@ -268,4 +272,3 @@ struct StudentFormView: View {
         StudentFormView(student: student, viewModel: viewModel)
     }
 }
-

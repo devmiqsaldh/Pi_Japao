@@ -283,6 +283,16 @@ struct StudentFormView: View {
                 dismiss()
             }
         } catch {
+            // Log detalhado do erro para debug
+            print("❌ Erro ao salvar aluno: \(error)")
+            if let nsError = error as NSError? {
+                print("   Domain: \(nsError.domain)")
+                print("   Code: \(nsError.code)")
+                print("   Description: \(nsError.localizedDescription)")
+                if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? Error {
+                    print("   Underlying: \(underlyingError)")
+                }
+            }
             errorHandler.handleAPIError(error)
         }
     }

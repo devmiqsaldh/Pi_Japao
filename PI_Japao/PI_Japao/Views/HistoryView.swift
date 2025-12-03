@@ -106,3 +106,17 @@ struct SessionDetailView: View {
         isLoading = false
     }
 }
+
+#Preview("HistoryView - Empty") {
+    HistoryView()
+}
+
+#Preview("HistoryView - With Sessions") {
+    HistoryView()
+}
+
+#Preview("SessionDetailView") {
+    NavigationStack {
+        SessionDetailView(sessionID: UUID(), viewModel: HistoryViewModel())
+    }
+}

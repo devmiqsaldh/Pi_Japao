@@ -64,6 +64,11 @@ struct DashboardView: View {
     }
 }
 
+#Preview("DashboardView") {
+    DashboardView()
+        .environment(AttendanceManager())
+}
+
 private struct SessionRow: View {
     var session: AttendanceSessionDTO
 

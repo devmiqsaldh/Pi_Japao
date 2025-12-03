@@ -85,3 +85,30 @@ struct SettingsView: View {
         }
     }
 }
+
+#Preview("SettingsView") {
+    NavigationStack {
+        SettingsView()
+    }
+}
+
+#Preview("SettingsView - With Data") {
+    let viewModel = SettingsViewModel()
+    let settings = AppSettingsDTO(
+        id: UUID(),
+        presenceStart: Calendar.current.date(bySettingHour: 8, minute: 0, second: 0, of: Date())!,
+        presenceCutoff: Calendar.current.date(bySettingHour: 8, minute: 30, second: 0, of: Date())!,
+        exitStart: Calendar.current.date(bySettingHour: 17, minute: 0, second: 0, of: Date())!,
+        exitCutoff: Calendar.current.date(bySettingHour: 17, minute: 30, second: 0, of: Date())!,
+        presenceMessage: "Presença registrada para {name} às {time}.",
+        absenceMessage: "Falta registrada para {name}.",
+        leftMessage: "Saída registrada para {name} às {time}.",
+        notLeftMessage: "Não saiu registrado para {name}.",
+        createdAt: Date(),
+        updatedAt: Date()
+    )
+    viewModel.settings = settings
+    return NavigationStack {
+        SettingsView()
+    }
+}

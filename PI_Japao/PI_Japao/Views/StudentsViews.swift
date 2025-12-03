@@ -180,3 +180,65 @@ struct StudentFormView: View {
     }
 }
 
+#Preview("StudentsListView - Empty") {
+    StudentsListView()
+}
+
+#Preview("StudentsListView - With Students") {
+    let viewModel = StudentViewModel()
+    viewModel.students = [
+        StudentDTO(
+            id: UUID(),
+            name: "João Silva",
+            email: "joao@email.com",
+            phone: "+5511999999999",
+            beaconID: UUID(),
+            beacon: BeaconDTO(id: UUID(), beaconID: "550e8400-e29b-41d4-a716-446655440000", name: "Beacon João", isActive: true),
+            createdAt: Date(),
+            updatedAt: Date()
+        ),
+        StudentDTO(
+            id: UUID(),
+            name: "Maria Santos",
+            email: "maria@email.com",
+            phone: "+5511888888888",
+            beaconID: UUID(),
+            beacon: BeaconDTO(id: UUID(), beaconID: "550e8400-e29b-41d4-a716-446655440001", name: "Beacon Maria", isActive: true),
+            createdAt: Date(),
+            updatedAt: Date()
+        )
+    ]
+    return StudentsListView()
+}
+
+#Preview("StudentFormView - New") {
+    let viewModel = StudentViewModel()
+    viewModel.beacons = [
+        BeaconDTO(id: UUID(), beaconID: "550e8400-e29b-41d4-a716-446655440000", name: "Beacon 1", isActive: true),
+        BeaconDTO(id: UUID(), beaconID: "550e8400-e29b-41d4-a716-446655440001", name: "Beacon 2", isActive: true)
+    ]
+    return NavigationStack {
+        StudentFormView(viewModel: viewModel)
+    }
+}
+
+#Preview("StudentFormView - Edit") {
+    let viewModel = StudentViewModel()
+    viewModel.beacons = [
+        BeaconDTO(id: UUID(), beaconID: "550e8400-e29b-41d4-a716-446655440000", name: "Beacon 1", isActive: true)
+    ]
+    let student = StudentDTO(
+        id: UUID(),
+        name: "João Silva",
+        email: "joao@email.com",
+        phone: "+5511999999999",
+        beaconID: viewModel.beacons[0].id,
+        beacon: viewModel.beacons[0],
+        createdAt: Date(),
+        updatedAt: Date()
+    )
+    return NavigationStack {
+        StudentFormView(student: student, viewModel: viewModel)
+    }
+}
+

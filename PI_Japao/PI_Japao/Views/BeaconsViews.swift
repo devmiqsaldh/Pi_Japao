@@ -150,3 +150,31 @@ struct BeaconFormView: View {
         }
     }
 }
+
+#Preview("BeaconsListView - Empty") {
+    BeaconsListView()
+        .environment(AttendanceManager())
+}
+
+#Preview("BeaconsListView - With Beacons") {
+    BeaconsListView()
+        .environment(AttendanceManager())
+}
+
+#Preview("BeaconFormView - New") {
+    NavigationStack {
+        BeaconFormView(viewModel: BeaconViewModel())
+    }
+}
+
+#Preview("BeaconFormView - Edit") {
+    let beacon = BeaconDTO(
+        id: UUID(),
+        beaconID: "550e8400-e29b-41d4-a716-446655440000",
+        name: "Beacon Aluno João",
+        isActive: true
+    )
+    return NavigationStack {
+        BeaconFormView(beacon: beacon, viewModel: BeaconViewModel())
+    }
+}

@@ -1,0 +1,10 @@
+.DS_Store
+/.build
+/Packages
+xcuserdata/
+*.xcodeproj
+*.xcworkspace
+attendance.db
+attendance.db-shm
+attendance.db-wal
+

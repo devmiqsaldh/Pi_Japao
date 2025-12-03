@@ -1,49 +1,71 @@
 import SwiftUI
-import SwiftData
 
 struct DashboardView: View {
-    @Environment(AttendanceManager.self) private var manager
-    @Environment(\.modelContext) private var context
-
-    @Query(sort: \AttendanceSession.startTime, order: .forward, animation: .default)
-    private var sessions: [AttendanceSession]
-
-    @Query(sort: \Beacon.name, order: .forward, animation: .default)
-    private var beacons: [Beacon]
+    @State private var viewModel = DashboardViewModel()
+    @Environment(AttendanceManager.self) private var attendanceManager
 
     var body: some View {
         NavigationStack {
             List {
                 Section("Sessões de hoje") {
-                    if let p = manager.currentPresenceSession {
+                    if let p = viewModel.currentPresenceSession {
                         SessionRow(session: p)
                     }
-                    if let e = manager.currentExitSession {
+                    if let e = viewModel.currentExitSession {
                         SessionRow(session: e)
+                    }
+                    
+                    if viewModel.isLoading {
+                        ProgressView()
                     }
                 }
 
-                Section("Ações") {
-                    if !beacons.isEmpty {
-                        ForEach(beacons) { beacon in
-                            Button {
-                                manager.simulateDetect(id: beacon.id)
-                            } label: {
-                                Label("Simular detecção: \(beacon.name)", systemImage: "wave.3.right")
+                Section("Beacons Ativos") {
+                    if viewModel.beacons.isEmpty {
+                        Text("Nenhum beacon cadastrado")
+                            .foregroundStyle(.secondary)
+                    } else {
+                        ForEach(viewModel.beacons.filter { $0.isActive }) { beacon in
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(beacon.name)
+                                        .font(.headline)
+                                    Text("ID: \(beacon.beaconID)")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                if viewModel.isLoading {
+                                    ProgressView()
+                                }
                             }
                         }
-                    } else {
-                        Text("Cadastre beacons na aba Beacons.")
+                    }
+                }
+                
+                if let error = viewModel.errorMessage {
+                    Section {
+                        Text(error)
+                            .foregroundStyle(.red)
                     }
                 }
             }
             .navigationTitle("Dashboard")
+            .task {
+                await viewModel.start()
+            }
+            .onDisappear {
+                viewModel.stop()
+            }
+            .refreshable {
+                await viewModel.start()
+            }
         }
     }
 }
 
 private struct SessionRow: View {
-    var session: AttendanceSession
+    var session: AttendanceSessionDTO
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -61,8 +83,8 @@ private struct SessionRow: View {
                 Text("Limite: \(session.cutoffTime.formatted(date: .omitted, time: .shortened))")
                     .foregroundStyle(.secondary)
             }
-            if !session.records.isEmpty {
-                Text("Registros: \(session.records.count)")
+            if let count = session.recordsCount, count > 0 {
+                Text("Registros: \(count)")
                     .font(.subheadline)
             }
         }

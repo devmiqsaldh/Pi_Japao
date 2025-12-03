@@ -1,0 +1,37 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+*.xcworkspace/*
+!*.xcworkspace/contents.xcworkspacedata
+xcuserdata/
+*.xcuserstate
+*.xcuserdatad/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/
+
+# Backend
+PI_Japao/Backend/.build/
+PI_Japao/Backend/Packages/
+PI_Japao/Backend/attendance.db
+PI_Japao/Backend/attendance.db-shm
+PI_Japao/Backend/attendance.db-wal
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+

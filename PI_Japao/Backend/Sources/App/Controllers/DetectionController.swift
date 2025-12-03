@@ -81,9 +81,12 @@ struct DetectionController: RouteCollection {
                 record.updatedAt = Date()
             }
             
-            // Formatar e enviar mensagem
+            // Formatar e enviar mensagem (sempre usa mensagens fixas)
+            let template = kind == .presence 
+                ? AppSettings.fixedPresenceMessage() 
+                : AppSettings.fixedLeftMessage()
             let message = formatMessage(
-                template: kind == .presence ? settings.presenceMessage : settings.leftMessage,
+                template: template,
                 student: student,
                 time: now
             )

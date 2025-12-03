@@ -193,18 +193,13 @@ struct SettingsView: View {
             }
         }
         
-        // Mensagens são fixas e gerenciadas pelo backend
-        // Não precisam ser enviadas aqui, apenas horários
+        // Mensagens são sempre fixas no backend - não podem ser alteradas
         do {
             try await viewModel.updateSettings(
                 presenceStart: presenceStart,
                 presenceCutoff: presenceCutoff,
                 exitStart: exitStart,
-                exitCutoff: exitCutoff,
-                presenceMessage: nil, // Fixa no backend
-                absenceMessage: nil, // Fixa no backend
-                leftMessage: nil, // Fixa no backend
-                notLeftMessage: nil // Fixa no backend
+                exitCutoff: exitCutoff
             )
             errorHandler.show("Configurações salvas com sucesso!", type: .success)
             await loadSettings()
@@ -228,10 +223,6 @@ struct SettingsView: View {
         presenceCutoff: Calendar.current.date(bySettingHour: 8, minute: 30, second: 0, of: Date())!,
         exitStart: Calendar.current.date(bySettingHour: 17, minute: 0, second: 0, of: Date())!,
         exitCutoff: Calendar.current.date(bySettingHour: 17, minute: 30, second: 0, of: Date())!,
-        presenceMessage: "Presença registrada para {name} às {time}.",
-        absenceMessage: "Falta registrada para {name}.",
-        leftMessage: "Saída registrada para {name} às {time}.",
-        notLeftMessage: "Não saiu registrado para {name}.",
         createdAt: Date(),
         updatedAt: Date()
     )

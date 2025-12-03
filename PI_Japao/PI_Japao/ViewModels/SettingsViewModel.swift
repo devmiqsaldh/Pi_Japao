@@ -23,21 +23,14 @@ class SettingsViewModel {
         presenceStart: Date? = nil,
         presenceCutoff: Date? = nil,
         exitStart: Date? = nil,
-        exitCutoff: Date? = nil,
-        presenceMessage: String? = nil,
-        absenceMessage: String? = nil,
-        leftMessage: String? = nil,
-        notLeftMessage: String? = nil
+        exitCutoff: Date? = nil
     ) async throws {
+        // Mensagens são sempre fixas - não podem ser alteradas
         let updateDTO = AppSettingsUpdateDTO(
             presenceStart: presenceStart,
             presenceCutoff: presenceCutoff,
             exitStart: exitStart,
-            exitCutoff: exitCutoff,
-            presenceMessage: presenceMessage,
-            absenceMessage: absenceMessage,
-            leftMessage: leftMessage,
-            notLeftMessage: notLeftMessage
+            exitCutoff: exitCutoff
         )
         settings = try await apiService.updateSettings(updateDTO)
     }

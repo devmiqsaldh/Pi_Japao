@@ -108,18 +108,13 @@ struct AttendanceController: RouteCollection {
         if let exitCutoff = update.exitCutoff {
             settings.exitCutoff = exitCutoff
         }
-        if let presenceMessage = update.presenceMessage {
-            settings.presenceMessage = presenceMessage
-        }
-        if let absenceMessage = update.absenceMessage {
-            settings.absenceMessage = absenceMessage
-        }
-        if let leftMessage = update.leftMessage {
-            settings.leftMessage = leftMessage
-        }
-        if let notLeftMessage = update.notLeftMessage {
-            settings.notLeftMessage = notLeftMessage
-        }
+        
+        // Mensagens são sempre fixas - não podem ser alteradas
+        // Garantir que sempre tenham os valores fixos
+        settings.presenceMessage = AppSettings.fixedPresenceMessage()
+        settings.absenceMessage = AppSettings.fixedAbsenceMessage()
+        settings.leftMessage = AppSettings.fixedLeftMessage()
+        settings.notLeftMessage = AppSettings.fixedNotLeftMessage()
         
         try await settings.save(on: req.db)
         return settings.toPublic()

@@ -62,6 +62,23 @@ final class AppSettings: Model, Content {
         self.notLeftMessage = notLeftMessage
     }
     
+    // Mensagens fixas - não podem ser alteradas
+    static func fixedPresenceMessage() -> String {
+        return "{name} - Presença confirmada"
+    }
+    
+    static func fixedAbsenceMessage() -> String {
+        return "{name} - Falta registrada"
+    }
+    
+    static func fixedLeftMessage() -> String {
+        return "{name} - Saída confirmada"
+    }
+    
+    static func fixedNotLeftMessage() -> String {
+        return "{name} - Não saiu"
+    }
+    
     static func makeDefault(for day: Date = Date()) -> AppSettings {
         let cal = Calendar.current
         let date = day.stripTime()
@@ -75,10 +92,10 @@ final class AppSettings: Model, Content {
             presenceCutoff: presenceCutoff,
             exitStart: exitStart,
             exitCutoff: exitCutoff,
-            presenceMessage: "{name} - Presença confirmada",
-            absenceMessage: "{name} - Falta registrada",
-            leftMessage: "{name} - Saída confirmada",
-            notLeftMessage: "{name} - Não saiu"
+            presenceMessage: fixedPresenceMessage(),
+            absenceMessage: fixedAbsenceMessage(),
+            leftMessage: fixedLeftMessage(),
+            notLeftMessage: fixedNotLeftMessage()
         )
     }
 }
@@ -89,10 +106,7 @@ extension AppSettings {
         var presenceCutoff: Date?
         var exitStart: Date?
         var exitCutoff: Date?
-        var presenceMessage: String?
-        var absenceMessage: String?
-        var leftMessage: String?
-        var notLeftMessage: String?
+        // Mensagens removidas - são sempre fixas
     }
     
     struct Public: Content {
@@ -101,10 +115,7 @@ extension AppSettings {
         var presenceCutoff: Date
         var exitStart: Date
         var exitCutoff: Date
-        var presenceMessage: String
-        var absenceMessage: String
-        var leftMessage: String
-        var notLeftMessage: String
+        // Mensagens não são expostas - são sempre fixas
         var createdAt: Date?
         var updatedAt: Date?
     }
@@ -116,10 +127,6 @@ extension AppSettings {
             presenceCutoff: presenceCutoff,
             exitStart: exitStart,
             exitCutoff: exitCutoff,
-            presenceMessage: presenceMessage,
-            absenceMessage: absenceMessage,
-            leftMessage: leftMessage,
-            notLeftMessage: notLeftMessage,
             createdAt: createdAt,
             updatedAt: updatedAt
         )

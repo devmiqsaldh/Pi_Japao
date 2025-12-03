@@ -258,10 +258,7 @@ struct AppSettingsDTO: Codable {
     var presenceCutoff: Date
     var exitStart: Date
     var exitCutoff: Date
-    var presenceMessage: String
-    var absenceMessage: String
-    var leftMessage: String
-    var notLeftMessage: String
+    // Mensagens removidas - são sempre fixas no backend
     var createdAt: Date?
     var updatedAt: Date?
 }
@@ -271,10 +268,7 @@ struct AppSettingsUpdateDTO: Codable {
     var presenceCutoff: Date?
     var exitStart: Date?
     var exitCutoff: Date?
-    var presenceMessage: String?
-    var absenceMessage: String?
-    var leftMessage: String?
-    var notLeftMessage: String?
+    // Mensagens removidas - são sempre fixas, não podem ser alteradas
 }
 
 struct DetectionRequestDTO: Codable {

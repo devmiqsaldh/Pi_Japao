@@ -74,14 +74,28 @@ O servidor iniciará em `http://localhost:8080`
 
 ## Integração com ESP32
 
-O ESP32 deve fazer POST para `/api/detections` quando detectar um beacon:
+### Código e Documentação
+- **Código completo**: `ESP32/esp32_beacon_scanner.ino`
+- **Guia de integração**: `ESP32/README.md`
+- **Exemplo simplificado**: `ESP32/EXEMPLO_CODIGO_ESP32.md`
 
+### Como Funciona
+1. ESP32 escaneia beacons BLE na área próxima
+2. Quando detecta um beacon, envia POST para `/api/detections`:
 ```json
 {
   "beaconID": "UUID_DO_BEACON",
   "timestamp": "2025-01-01T10:00:00Z"
 }
 ```
+3. Backend processa e envia notificações aos pais
+
+### Configuração Rápida
+1. Edite `ESP32/esp32_beacon_scanner.ino`:
+   - Configure WiFi (SSID e senha)
+   - Configure URL do backend (IP da máquina + porta 8080)
+2. Carregue o código no ESP32
+3. Abra Serial Monitor (115200 baud) para ver logs
 
 ## Estrutura MVVM
 
@@ -106,6 +120,12 @@ O ESP32 deve fazer POST para `/api/detections` quando detectar um beacon:
 - ✅ Envio de mensagens aos pais
 - ✅ Histórico de presenças
 - ✅ Configuração de horários e mensagens
+
+## 📚 Documentação Adicional
+
+- **[Guia Completo de Cadastro de Beacons](GUIA_CADASTRO_BEACONS.md)** - Passo a passo para cadastrar beacons e alunos
+- **[Integração ESP32](ESP32/README.md)** - Guia completo de configuração do ESP32
+- **[Código ESP32](ESP32/esp32_beacon_scanner.ino)** - Código completo para ESP32
 
 ## Próximos Passos
 

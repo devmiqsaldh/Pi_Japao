@@ -2,7 +2,7 @@
 
 Este documento descreve a organização completa do projeto seguindo a arquitetura MVVM.
 
-## 📁 Estrutura de Pastas
+## Estrutura de Pastas
 
 ```
 PI_Japao/
@@ -56,10 +56,10 @@ PI_Japao/
 │           └── Assets.xcassets # Imagens e ícones
 │
 ├── README.md                    # Documentação principal
-└── GUIA_CADASTRO_BEACONS.md    # Guia de cadastro
+└── docs/                      # Guias
 ```
 
-## 🏗️ Arquitetura MVVM
+## Arquitetura MVVM
 
 ### Models
 - **Models.swift**: Define enums e tipos compartilhados (`SessionKind`, `AttendanceStatus`)
@@ -84,7 +84,7 @@ PI_Japao/
 - **APIService**: Cliente HTTP para comunicação com backend REST
 - **BeaconScannerService**: Serviço de detecção de beacons usando CoreLocation
 
-## 🔄 Fluxo de Dados
+## Fluxo de Dados
 
 ```
 Views → ViewModels → Services → Backend API
@@ -98,7 +98,7 @@ Views → ViewModels → Services → Backend API
 4. **Backend** retorna DTOs que são convertidos e atualizam os **ViewModels**
 5. **Views** são atualizadas automaticamente via SwiftUI
 
-## 📦 Dependências
+## Dependências
 
 ### iOS App
 - SwiftUI (nativo)
@@ -116,7 +116,7 @@ Views → ViewModels → Services → Backend API
 - HTTPClient Library
 - ArduinoJson
 
-## 🚀 Como Usar
+## Como Usar
 
 ### 1. Backend
 ```bash
@@ -134,7 +134,7 @@ swift run
 2. Configure WiFi e URL do backend
 3. Faça upload para o ESP32
 
-## 📝 Convenções
+## Convenções
 
 ### Nomenclatura
 - **Views**: `*View.swift` (ex: `DashboardView.swift`)
@@ -147,7 +147,7 @@ swift run
 - Services são singletons quando apropriado
 - DTOs são definidos junto com os Services que os usam
 
-## 🔧 Manutenção
+## Manutenção
 
 ### Adicionar Nova View
 1. Criar arquivo em `Views/`

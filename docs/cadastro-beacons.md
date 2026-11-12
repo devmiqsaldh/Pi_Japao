@@ -2,13 +2,13 @@
 
 Este guia explica passo a passo como cadastrar novos beacons no sistema.
 
-## 📋 Pré-requisitos
+## Pré-requisitos
 
 1. **Backend rodando**: O servidor Swift Vapor deve estar em execução
 2. **App iOS configurado**: App deve estar conectado ao backend
 3. **UUID do Beacon**: Você precisa do UUID do seu beacon BLE
 
-## 🔍 Como Obter o UUID do Beacon
+## Como Obter o UUID do Beacon
 
 ### Opção 1: Usando App no iPhone/iPad
 1. Instale um app de scanner BLE (ex: "BLE Scanner", "nRF Connect")
@@ -26,7 +26,7 @@ Este guia explica passo a passo como cadastrar novos beacons no sistema.
 2. Escaneie e encontre seu beacon
 3. Copie o UUID exibido
 
-## 📱 Cadastro via App iOS
+## Cadastro via App iOS
 
 ### Passo 1: Abrir a Tela de Beacons
 1. Abra o app iOS
@@ -46,7 +46,7 @@ Este guia explica passo a passo como cadastrar novos beacons no sistema.
 - O beacon aparecerá na lista de beacons
 - Você pode editar ou desativar depois
 
-## 🔗 Associar Beacon a Aluno
+## Associar Beacon a Aluno
 
 ### Passo 1: Cadastrar Aluno
 1. Vá para a aba **"Alunos"** no app
@@ -62,7 +62,7 @@ Este guia explica passo a passo como cadastrar novos beacons no sistema.
 - O aluno aparecerá na lista com o beacon associado
 - Você pode editar ou remover depois
 
-## 🌐 Cadastro via API REST
+## Cadastro via API REST
 
 Se preferir usar a API diretamente:
 
@@ -93,7 +93,7 @@ curl -X POST http://localhost:8080/api/students \
   }'
 ```
 
-## ✅ Fluxo Completo de Cadastro
+## Fluxo Completo de Cadastro
 
 ```
 1. Obter UUID do Beacon
@@ -109,7 +109,7 @@ curl -X POST http://localhost:8080/api/students \
 6. Backend processa e envia notificação aos pais
 ```
 
-## 🔧 Gerenciamento de Beacons
+## Gerenciamento de Beacons
 
 ### Editar Beacon
 1. Na lista de beacons, toque no beacon desejado
@@ -125,7 +125,7 @@ curl -X POST http://localhost:8080/api/students \
 2. Toque em **"Deletar"**
 3. ⚠️ **Atenção**: Isso também removerá associações com alunos
 
-## 📊 Verificar Detecções
+## Verificar Detecções
 
 ### Via App
 1. Vá para a aba **"Histórico"**
@@ -139,7 +139,7 @@ Quando o ESP32 detecta um beacon, o backend mostra logs:
 📱 SMS -> +5511999999999: Presença registrada para João Silva às 08:15.
 ```
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Beacon não aparece no scan
 - Verifique se o beacon está ligado e transmitindo
@@ -161,7 +161,7 @@ Quando o ESP32 detecta um beacon, o backend mostra logs:
 - Confirme que está dentro do horário de presença/saída
 - Verifique logs do backend para erros
 
-## 💡 Dicas
+## Dicas
 
 1. **Nomenclatura**: Use nomes descritivos como "Beacon Aluno João Silva" para facilitar identificação
 2. **Teste**: Sempre teste o cadastro antes de usar em produção
@@ -169,7 +169,7 @@ Quando o ESP32 detecta um beacon, o backend mostra logs:
 4. **Organização**: Agrupe beacons por turma ou série no nome
 5. **Validação**: Sempre valide o UUID antes de cadastrar
 
-## 📞 Suporte
+## Suporte
 
 Se tiver problemas:
 1. Verifique os logs do backend

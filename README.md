@@ -1,167 +1,154 @@
-# Sistema de Presença Escolar com Beacons
+<div align="center">
 
-Sistema completo para avisar pais quando filhos chegam na escola usando beacons, ESP32 e app iOS.
+# Presença Escolar com Beacons
 
-## 📁 Estrutura do Projeto
+**Os pais recebem um aviso quando o filho chega à escola e quando sai, sem ninguém fazer chamada.**
+
+Sistema IoT completo: hardware ESP32, backend em Swift (Vapor) e aplicação iOS em SwiftUI.
+
+![Swift](https://img.shields.io/badge/Swift-F05138?style=flat-square&logo=swift&logoColor=white)
+![SwiftUI](https://img.shields.io/badge/SwiftUI-0D96F6?style=flat-square&logo=swift&logoColor=white)
+![Vapor](https://img.shields.io/badge/Vapor-4-0D0D0D?style=flat-square&logo=vapor&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white)
+![ESP32](https://img.shields.io/badge/ESP32-BLE-E7352C?style=flat-square&logo=espressif&logoColor=white)
+![Arquitetura](https://img.shields.io/badge/arquitetura-MVVM-6E40C9?style=flat-square)
+
+</div>
+
+<!-- Adiciona aqui uma foto do ESP32 com o beacon e uma captura do dashboard da app. -->
+
+---
+
+## O problema
+
+Muitos pais querem saber se o filho chegou bem à escola, mas confirmar isso depende de chamadas manuais ou de mensagens da secretaria. Este projeto automatiza o processo: cada aluno leva um beacon Bluetooth (iBeacon), um ESP32 à entrada da escola deteta-o e o sistema avisa os responsáveis.
+
+## Como funciona
+
+```mermaid
+flowchart LR
+    B["Beacon do aluno<br/>(iBeacon BLE)"] -->|sinal Bluetooth| E["ESP32<br/>scanner BLE"]
+    E -->|"POST /api/detections<br/>(Wi-Fi)"| V["Backend Vapor<br/>+ SQLite"]
+    V -->|valida beacon e horário| S["Sessão de presença<br/>ou de saída"]
+    S --> M["Mensagem aos pais<br/>(e-mail / WhatsApp)"]
+    A["App iOS<br/>(SwiftUI)"] <-->|REST| V
+```
+
+1. **Cadastro:** na app, a escola regista os beacons e associa cada um a um aluno.
+2. **Deteção:** o ESP32 procura iBeacons próximos e envia cada deteção ao backend.
+3. **Validação:** o backend só aceita beacons registados e verifica se a deteção cai na janela de entrada ou de saída.
+4. **Notificação:** é gerada uma mensagem a partir de modelos configuráveis (presença, falta, saída, não saiu).
+5. **Acompanhamento:** a app mostra o dashboard do dia, o histórico e as configurações.
+
+## Funcionalidades
+
+- Cadastro de beacons e de alunos associados a beacons
+- Deteção automática, que ignora beacons não registados
+- Janelas de horário configuráveis para entrada e saída
+- Modelos de mensagem personalizáveis para cada situação
+- Histórico de sessões e registos de presença
+- Dashboard com o estado do dia e da ligação ao servidor
+- Deteção também pelo próprio iPhone, com regiões de beacon do CoreLocation
+
+## Destaques técnicos
+
+- **Três camadas a falar entre si:** firmware em C++ (Arduino), API REST em Swift no servidor e cliente iOS. O mesmo idioma (Swift) no backend e na app.
+- **Backend com Vapor 4 + Fluent:** controllers por recurso, modelos com migrations e base de dados SQLite criada automaticamente.
+- **Regras de negócio no servidor:** criação de sessões diárias, prevenção de registos duplicados e formatação das mensagens com os dados do aluno e a hora.
+- **Leitura de iBeacon no ESP32:** interpretação dos dados de fabricante do pacote BLE para extrair UUID, major e minor.
+- **Logs estruturados:** `os.Logger` na app, por categoria (beacons, presença, alunos), e o logger do Vapor no servidor.
+- **App em MVVM:** um `AttendanceManager` coordena os ViewModels de beacons, alunos, dashboard, histórico e configurações. A comunicação com a API fica isolada no `APIService`.
+
+## Stack
+
+| Camada | Tecnologia |
+| --- | --- |
+| App iOS | SwiftUI, CoreLocation, MVVM |
+| Backend | Swift, Vapor 4, Fluent, Leaf |
+| Base de dados | SQLite |
+| Hardware | ESP32 (BLE + Wi-Fi), iBeacons |
+| Firmware | C++ / Arduino IDE |
+
+## API
+
+| Método | Rota | Descrição |
+| --- | --- | --- |
+| `GET` `POST` | `/api/beacons` | Listar e criar beacons |
+| `GET` `PUT` `DELETE` | `/api/beacons/:id` | Consultar, atualizar e apagar um beacon |
+| `GET` `POST` | `/api/students` | Listar e criar alunos |
+| `GET` `PUT` `DELETE` | `/api/students/:id` | Consultar, atualizar e apagar um aluno |
+| `POST` | `/api/detections` | Registar uma deteção (chamada pelo ESP32) |
+| `GET` | `/api/attendance/sessions` | Listar sessões |
+| `GET` | `/api/attendance/sessions/:id` | Detalhes de uma sessão |
+| `GET` | `/api/attendance/records` | Listar registos |
+| `GET` `PUT` | `/api/attendance/settings` | Consultar e alterar horários e mensagens |
+
+## Estrutura
 
 ```
 Pi_Japao/
-├── PI_Japao/             # Projeto principal
-│   ├── Backend/          # Backend Swift Vapor
-│   ├── ESP32/            # Código para ESP32
-│   └── PI_Japao/         # Projeto iOS (SwiftUI + MVVM)
-│       ├── Models/       # Modelos de dados
-│       ├── Views/        # Camada de apresentação
-│       ├── ViewModels/   # Camada de lógica
-│       ├── Services/     # Serviços (API, Scanner)
-│       └── Resources/    # Recursos (Assets)
-└── README.md             # Este arquivo
+├── docs/                 # Guias de configuração e arquitetura
+└── PI_Japao/
+    ├── Backend/          # API em Vapor (controllers, models, migrations, services)
+    ├── ESP32/            # Firmware do scanner BLE
+    └── PI_Japao/         # App iOS
+        ├── Models/
+        ├── Views/
+        ├── ViewModels/
+        ├── Services/     # APIService e BeaconScannerService
+        └── Resources/    # Tema, layout adaptativo e componentes
 ```
 
-📖 **Ver [PI_Japao/ESTRUTURA_PROJETO.md](PI_Japao/ESTRUTURA_PROJETO.md) para detalhes completos da arquitetura MVVM**
+## Como executar
 
-##  Início Rápido
+**Requisitos:** macOS 13+, Xcode 26+ (a app usa iOS 26), Arduino IDE com suporte ao ESP32, um ESP32 e pelo menos um beacon (ou um telemóvel a emitir iBeacon).
 
 ### 1. Backend
 
 ```bash
-cd PI_Japao/Backend
+git clone https://github.com/devmiqsaldh/Pi_Japao.git
+cd Pi_Japao/PI_Japao/Backend
 swift run
 ```
 
-O servidor iniciará em `http://localhost:8080`
+O servidor arranca em `http://localhost:8080` e cria o ficheiro `attendance.db` na primeira execução.
 
 ### 2. App iOS
 
-1. Abra `PI_Japao/PI_Japao.xcodeproj` no Xcode
-2. **Importante**: Se os arquivos não aparecerem, adicione manualmente:
-   - Clique com botão direito no projeto → "Add Files to PI_Japao"
-   - Adicione as pastas: `Views/`, `ViewModels/`, `Services/`, `Models/`, `Resources/`
-3. Configure a URL do backend em `Services/APIService.swift` (padrão: `http://localhost:8080`)
-4. Execute no simulador ou dispositivo
+1. Abre `PI_Japao/PI_Japao.xcodeproj` no Xcode.
+2. Em `Services/APIService.swift`, aponta a URL para o backend. Num dispositivo físico, usa o IP local do computador em vez de `localhost`.
+3. Executa no simulador ou no iPhone.
 
 ### 3. ESP32
 
-1. Abra `PI_Japao/ESP32/esp32_beacon_scanner.ino` no Arduino IDE
-2. Configure WiFi e URL do backend
-3. Faça upload para o ESP32
+1. Abre `PI_Japao/ESP32/esp32_beacon_scanner.ino` no Arduino IDE.
+2. Preenche o nome e a senha da rede Wi-Fi e a URL do backend (IP local do computador).
+3. Carrega o código para o ESP32 e acompanha as deteções no Monitor Série.
 
-##  Documentação
+## Documentação
 
-- **[PI_Japao/ESTRUTURA_PROJETO.md](PI_Japao/ESTRUTURA_PROJETO.md)** - Arquitetura MVVM completa
-- **[PI_Japao/GUIA_CADASTRO_BEACONS.md](PI_Japao/GUIA_CADASTRO_BEACONS.md)** - Como cadastrar beacons e alunos
-- **[PI_Japao/CONFIGURAR_XCODE.md](PI_Japao/CONFIGURAR_XCODE.md)** - Guia de configuração do Xcode
-- **[PI_Japao/Backend/README.md](PI_Japao/Backend/README.md)** - Documentação do backend
-- **[PI_Japao/ESP32/README.md](PI_Japao/ESP32/README.md)** - Guia de integração ESP32
+- [Guia completo de configuração](docs/configuracao.md)
+- [Arquitetura da app](docs/arquitetura.md)
+- [Como registar beacons e alunos](docs/cadastro-beacons.md)
+- [Configuração do ESP32](docs/esp32.md)
+- [Envio de mensagens (e-mail e WhatsApp)](docs/mensagens.md)
+- [Configuração do Xcode](docs/xcode.md)
+- [Backend](PI_Japao/Backend/README.md)
 
-##  Arquitetura MVVM
+## Estado atual e próximos passos
 
-### Models
-- `Models.swift` - Enums e tipos compartilhados
+- [x] Fluxo completo beacon → ESP32 → backend → app
+- [x] Sessões, histórico e configurações
+- [ ] Envio real das mensagens (hoje o envio por e-mail e WhatsApp é simulado e aparece no log do servidor)
+- [ ] Autenticação na API
+- [ ] Notificações push para os pais
 
-### Views
-- `ContentView.swift` - TabView principal
-- `DashboardView.swift` - Dashboard
-- `BeaconsViews.swift` - Gerenciamento de beacons
-- `StudentsViews.swift` - Gerenciamento de alunos
-- `HistoryView.swift` - Histórico
-- `SettingsView.swift` - Configurações
+## Autor
 
-### ViewModels
-- `AttendanceManager.swift` - Orquestrador principal
-- `BeaconViewModel.swift` - Lógica de beacons
-- `StudentViewModel.swift` - Lógica de alunos
-- `DashboardViewModel.swift` - Lógica do dashboard
-- `HistoryViewModel.swift` - Lógica do histórico
-- `SettingsViewModel.swift` - Lógica de configurações
+**Miqueias Saldanha**: desenvolvedor iOS, Apple Developer Academy | Mackenzie
 
-### Services
-- `APIService.swift` - Cliente HTTP para backend
-- `BeaconScannerService.swift` - Detecção de beacons (CoreLocation)
+[![GitHub](https://img.shields.io/badge/GitHub-devmiqsaldh-181717?style=flat-square&logo=github)](https://github.com/devmiqsaldh)
 
-##  Fluxo de Funcionamento
+## Licença
 
-1. **Cadastro**: Beacons são cadastrados no app e associados a alunos
-2. **Detecção**: ESP32 detecta beacons próximos e envia para o backend
-3. **Processamento**: Backend verifica se o beacon está cadastrado e dentro da janela de tempo
-4. **Notificação**: Mensagens são enviadas aos pais (email/SMS) via templates configuráveis
-
-##  API Endpoints
-
-### Beacons
-- `GET /api/beacons` - Listar beacons
-- `POST /api/beacons` - Criar beacon
-- `GET /api/beacons/:id` - Buscar beacon
-- `PUT /api/beacons/:id` - Atualizar beacon
-- `DELETE /api/beacons/:id` - Deletar beacon
-
-### Alunos
-- `GET /api/students` - Listar alunos
-- `POST /api/students` - Criar aluno
-- `GET /api/students/:id` - Buscar aluno
-- `PUT /api/students/:id` - Atualizar aluno
-- `DELETE /api/students/:id` - Deletar aluno
-
-### Detecções
-- `POST /api/detections` - Registrar detecção (chamado pelo ESP32)
-
-### Presença
-- `GET /api/attendance/sessions` - Listar sessões
-- `GET /api/attendance/sessions/:id` - Detalhes da sessão
-- `GET /api/attendance/records` - Listar registros
-- `GET /api/attendance/settings` - Buscar configurações
-- `PUT /api/attendance/settings` - Atualizar configurações
-
-## ✅ Funcionalidades
-
-- ✅ Cadastro de beacons
-- ✅ Cadastro de alunos associados a beacons
-- ✅ Detecção automática de beacons (apenas cadastrados)
-- ✅ Sessões de presença e saída configuráveis
-- ✅ Envio de mensagens aos pais
-- ✅ Histórico de presenças
-- ✅ Configuração de horários e mensagens
-- ✅ Arquitetura MVVM limpa e testável
-
-##  Configuração
-
-### Backend
-- Edite `PI_Japao/Backend/Sources/App/configure.swift` se necessário
-- Banco de dados SQLite criado automaticamente em `attendance.db`
-
-### App iOS
-- Configure URL do backend em `PI_Japao/PI_Japao/Services/APIService.swift`
-- Adicione permissões de localização no `Info.plist`:
-  - `NSLocationAlwaysAndWhenInUseUsageDescription`
-  - `NSLocationAlwaysUsageDescription`
-  - `NSLocationWhenInUseUsageDescription`
-
-### ESP32
-- Configure WiFi em `PI_Japao/ESP32/esp32_beacon_scanner.ino`
-- Configure URL do backend (use IP local da máquina)
-
-##  Troubleshooting
-
-### Arquivos não aparecem no Xcode
-1. Clique com botão direito no projeto
-2. Selecione "Add Files to PI_Japao"
-3. Adicione as pastas: `Views/`, `ViewModels/`, `Services/`, `Models/`, `Resources/`
-4. Certifique-se de marcar "Create groups" e "Add to targets: PI_Japao"
-5. Veja [PI_Japao/CONFIGURAR_XCODE.md](PI_Japao/CONFIGURAR_XCODE.md) para detalhes
-
-### Backend não inicia
-- Verifique se a porta 8080 está livre
-- Confirme que todas as dependências estão instaladas: `swift package resolve`
-
-### ESP32 não detecta beacons
-- Verifique se o BLE está habilitado
-- Confirme que o beacon está transmitindo
-- Verifique a distância (máximo ~10 metros)
-
-##  Suporte
-
-Para mais informações, consulte:
-- [PI_Japao/ESTRUTURA_PROJETO.md](PI_Japao/ESTRUTURA_PROJETO.md) - Arquitetura detalhada
-- [PI_Japao/GUIA_CADASTRO_BEACONS.md](PI_Japao/GUIA_CADASTRO_BEACONS.md) - Guia de uso
-- [PI_Japao/Backend/README.md](PI_Japao/Backend/README.md) - Documentação do backend
-- [PI_Japao/ESP32/README.md](PI_Japao/ESP32/README.md) - Guia ESP32
+Distribuído sob a licença MIT. Consulta o ficheiro [LICENSE](LICENSE).

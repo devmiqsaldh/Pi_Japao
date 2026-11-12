@@ -1,44 +1,45 @@
 import Vapor
 import Fluent
-import Foundation
 
-class MessageService {
+/// Envia as notificações de presença aos responsáveis.
+///
+/// Por enquanto o envio é simulado: as mensagens vão para o log do servidor.
+/// Para enviar de verdade, basta trocar os dois métodos `deliver` por um
+/// provedor de e-mail (ex.: SendGrid) e de WhatsApp (ex.: Twilio).
+final class MessageService {
     static let shared = MessageService()
-    
+
+    private let logger = Logger(label: "app.messages")
+
     private init() {}
-    
+
     func send(toEmail email: String?, phone: String?, message: String, on database: Database) async throws {
-        // Simular latência de envio (200ms)
-        try await Task.sleep(nanoseconds: 200_000_000)
-        
-        // Enviar por Email e WhatsApp (ambos podem ser gratuitos)
-        var sentCount = 0
-        
-        // Enviar Email
-        if let email = email, !email.isEmpty {
-            print("📧 EMAIL -> \(email): \(message)")
-            // TODO: Integrar com serviço de email real (SendGrid, etc.)
-            // Por enquanto apenas simula o envio
-            sentCount += 1
+        var channels: [String] = []
+
+        if let email, !email.isEmpty {
+            deliverEmail(to: email, message: message)
+            channels.append("email")
         }
-        
-        // Enviar WhatsApp
-        if let phone = phone, !phone.isEmpty {
-            print("💬 WHATSAPP -> \(phone): \(message)")
-            // TODO: Integrar com API gratuita de WhatsApp
-            // Opções gratuitas:
-            // - Twilio WhatsApp API (1.000 mensagens/mês grátis)
-            // - Evolution API (self-hosted, gratuito)
-            // Por enquanto apenas simula o envio
-            sentCount += 1
+
+        if let phone, !phone.isEmpty {
+            deliverWhatsApp(to: phone, message: message)
+            channels.append("whatsapp")
         }
-        
-        // Verificar se pelo menos um método de contato está disponível
-        if sentCount == 0 {
-            print("⚠️ AVISO: Aluno sem email ou telefone cadastrado. Mensagem não enviada: \(message)")
+
+        if channels.isEmpty {
+            logger.warning("Aluno sem e-mail ou telefone; mensagem não enviada")
         } else {
-            print("✅ Mensagem enviada por \(sentCount) canal(is)")
+            logger.info("Mensagem enviada", metadata: ["canais": .string(channels.joined(separator: ","))])
         }
     }
-}
 
+    // MARK: - Canais (simulados)
+
+    private func deliverEmail(to email: String, message: String) {
+        logger.info("[simulado] e-mail", metadata: ["para": .string(email), "mensagem": .string(message)])
+    }
+
+    private func deliverWhatsApp(to phone: String, message: String) {
+        logger.info("[simulado] whatsapp", metadata: ["para": .string(phone), "mensagem": .string(message)])
+    }
+}

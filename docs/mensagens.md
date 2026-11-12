@@ -1,4 +1,4 @@
-# 📧 Integração de Email e WhatsApp
+# Integração de Email e WhatsApp
 
 ## Status Atual
 
@@ -18,7 +18,7 @@ No arquivo `Backend/Sources/App/Services/MessageService.swift`, o sistema:
 
 Para enviar mensagens reais, você precisa integrar com serviços de terceiros:
 
-### 📧 Email
+### Email
 
 **Opções recomendadas:**
 
@@ -40,7 +40,7 @@ Para enviar mensagens reais, você precisa integrar com serviços de terceiros:
    - Plano gratuito: 5.000 emails/mês
    - Documentação: https://documentation.mailgun.com/
 
-### 💬 WhatsApp
+### WhatsApp
 
 **Opções recomendadas (gratuitas ou com plano gratuito):**
 
@@ -234,5 +234,5 @@ O sistema agora suporta envio por **Email** e **WhatsApp**. Ambos podem ser conf
 
 - SendGrid: https://support.sendgrid.com/
 - Twilio: https://support.twilio.com/
-- Documentação do projeto: Veja `README.md`
+- Documentação do projeto: Veja o [README](../README.md)
 

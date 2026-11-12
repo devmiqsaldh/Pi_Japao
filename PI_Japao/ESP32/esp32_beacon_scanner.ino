@@ -97,7 +97,7 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
                     String beaconUUID = String(uuid);
                     int rssi = advertisedDevice.getRSSI();
                     
-                    Serial.print("🔍 Beacon detectado: ");
+                    Serial.print("Beacon detectado: ");
                     Serial.print(beaconUUID);
                     Serial.print(" (RSSI: ");
                     Serial.print(rssi);
@@ -111,7 +111,7 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
                         if (lastDetectedBeacons[i] == beaconUUID) {
                             if (now - lastDetectionTime[i] < DETECTION_COOLDOWN) {
                                 shouldReport = false;
-                                Serial.println("⏳ Beacon detectado recentemente, aguardando cooldown...");
+                                Serial.println("Beacon detectado recentemente, aguardando cooldown...");
                             } else {
                                 lastDetectionTime[i] = now;
                             }
@@ -139,7 +139,7 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
             
             // Se o UUID parece válido (formato UUID), enviar
             if (uuidString.length() == 36 && uuidString.indexOf('-') > 0) {
-                Serial.print("🔍 Beacon Eddystone detectado: ");
+                Serial.print("Beacon Eddystone detectado: ");
                 Serial.println(uuidString);
                 
                 // Verificar cooldown
@@ -175,11 +175,11 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
 
 void sendDetectionToBackend(String beaconID, int rssi) {
     if (WiFi.status() != WL_CONNECTED) {
-        Serial.println("❌ WiFi não conectado!");
+        Serial.println("WiFi não conectado!");
         return;
     }
     
-    Serial.print("📤 Enviando detecção para backend: ");
+    Serial.print("Enviando detecção para backend: ");
     Serial.println(beaconID);
     
     http.begin(client, backendURL);
@@ -199,27 +199,27 @@ void sendDetectionToBackend(String beaconID, int rssi) {
     String jsonPayload;
     serializeJson(doc, jsonPayload);
     
-    Serial.print("📦 Payload: ");
+    Serial.print("Payload: ");
     Serial.println(jsonPayload);
     
     int httpResponseCode = http.POST(jsonPayload);
     
     if (httpResponseCode > 0) {
-        Serial.print("✅ Resposta do servidor: ");
+        Serial.print("Resposta do servidor: ");
         Serial.println(httpResponseCode);
         
         String response = http.getString();
-        Serial.print("📥 Resposta: ");
+        Serial.print("Resposta: ");
         Serial.println(response);
         
         if (httpResponseCode == 200) {
-            Serial.println("✅ Detecção processada com sucesso!");
+            Serial.println("Detecção processada com sucesso!");
         } else {
-            Serial.print("⚠️ Erro no servidor: ");
+            Serial.print("Erro no servidor: ");
             Serial.println(httpResponseCode);
         }
     } else {
-        Serial.print("❌ Erro ao enviar requisição: ");
+        Serial.print("Erro ao enviar requisição: ");
         Serial.println(httpResponseCode);
         Serial.print("Erro: ");
         Serial.println(http.errorToString(httpResponseCode));
@@ -243,7 +243,7 @@ void setup() {
     Serial.println("========================================\n");
     
     // Conectar WiFi
-    Serial.print("📶 Conectando ao WiFi: ");
+    Serial.print("Conectando ao WiFi: ");
     Serial.println(ssid);
     
     WiFi.mode(WIFI_STA);
@@ -257,17 +257,17 @@ void setup() {
     }
     
     if (WiFi.status() == WL_CONNECTED) {
-        Serial.println("\n✅ WiFi conectado!");
-        Serial.print("📡 IP: ");
+        Serial.println("\nWiFi conectado!");
+        Serial.print("IP: ");
         Serial.println(WiFi.localIP());
     } else {
-        Serial.println("\n❌ Falha ao conectar WiFi!");
+        Serial.println("\nFalha ao conectar WiFi!");
         Serial.println("Verifique suas credenciais e tente novamente.");
         return;
     }
     
     // Inicializar BLE
-    Serial.println("\n🔵 Inicializando BLE...");
+    Serial.println("\nInicializando BLE...");
     BLEDevice::init("");
     
     // Criar scanner
@@ -277,8 +277,8 @@ void setup() {
     pBLEScan->setInterval(100);
     pBLEScan->setWindow(99);
     
-    Serial.println("✅ BLE inicializado!");
-    Serial.println("\n🔍 Iniciando escaneamento de beacons...\n");
+    Serial.println("BLE inicializado!");
+    Serial.println("\nIniciando escaneamento de beacons...\n");
 }
 
 // ============================================
@@ -288,7 +288,7 @@ void setup() {
 void loop() {
     // Verificar conexão WiFi
     if (WiFi.status() != WL_CONNECTED) {
-        Serial.println("⚠️ WiFi desconectado, tentando reconectar...");
+        Serial.println("WiFi desconectado, tentando reconectar...");
         WiFi.reconnect();
         delay(5000);
         return;
@@ -297,7 +297,7 @@ void loop() {
     // Escanear beacons
     BLEScanResults foundDevices = pBLEScan->start(scanDuration, false);
     
-    Serial.print("📊 Dispositivos encontrados: ");
+    Serial.print("Dispositivos encontrados: ");
     Serial.println(foundDevices.getCount());
     
     // Limpar resultados

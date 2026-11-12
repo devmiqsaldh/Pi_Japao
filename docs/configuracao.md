@@ -1,8 +1,8 @@
-# 🚀 Guia Completo de Configuração - Sistema de Presença Escolar
+# Guia Completo de Configuração - Sistema de Presença Escolar
 
 Este guia explica passo a passo como configurar todo o sistema, incluindo o ESP32-WROOM-32.
 
-## 📋 Pré-requisitos
+## Pré-requisitos
 
 - Mac ou PC com macOS/Windows/Linux
 - Xcode (para desenvolvimento iOS)
@@ -12,7 +12,7 @@ Este guia explica passo a passo como configurar todo o sistema, incluindo o ESP3
 - Beacons BLE (iBeacon ou Eddystone)
 - Rede WiFi
 
-## 🔧 Parte 1: Configuração do Backend
+## Parte 1: Configuração do Backend
 
 ### 1.1 Instalar Dependências
 
@@ -41,12 +41,12 @@ Abra no navegador: `http://localhost:8080`
 
 Deve aparecer: "Attendance API - Sistema de Presença Escolar"
 
-## 📱 Parte 2: Configuração do App iOS
+## Parte 2: Configuração do App iOS
 
 ### 2.1 Abrir o Projeto
 
 1. Abra `PI_Japao/PI_Japao.xcodeproj` no Xcode
-2. Se os arquivos não aparecerem, siga `PI_Japao/CONFIGURAR_XCODE.md`
+2. Se os arquivos não aparecerem, siga [xcode.md](xcode.md)
 
 ### 2.2 Configurar URL do Backend
 
@@ -82,7 +82,7 @@ Deve aparecer: "Attendance API - Sistema de Presença Escolar"
    - URL está correta?
    - Dispositivo e computador estão na mesma rede WiFi?
 
-## 🔌 Parte 3: Configuração do ESP32-WROOM-32
+## Parte 3: Configuração do ESP32-WROOM-32
 
 ### 3.1 Instalar Arduino IDE e Bibliotecas
 
@@ -153,7 +153,7 @@ const char* backendURL = "http://192.168.1.50:8080/api/detections";
    🔍 Iniciando escaneamento de beacons...
    ```
 
-## 📡 Parte 4: Configuração dos Beacons
+## Parte 4: Configuração dos Beacons
 
 ### 4.1 Obter UUID dos Beacons
 
@@ -192,7 +192,7 @@ const char* backendURL = "http://192.168.1.50:8080/api/detections";
    - **Beacon**: Selecione o beacon cadastrado
 4. Toque em **Salvar**
 
-## ✅ Parte 5: Testar o Sistema Completo
+## Parte 5: Testar o Sistema Completo
 
 ### 5.1 Fluxo de Teste
 
@@ -220,7 +220,7 @@ const char* backendURL = "http://192.168.1.50:8080/api/detections";
 
 4. No app iOS, vá em **Histórico** para ver a detecção registrada
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Backend não inicia
 - Verifique se a porta 8080 está livre
@@ -255,15 +255,15 @@ const char* backendURL = "http://192.168.1.50:8080/api/detections";
 - Verifique se há um aluno associado ao beacon
 - Confirme que está dentro da janela de tempo configurada
 
-## 📞 Suporte Adicional
+## Suporte Adicional
 
 Para mais informações:
-- **Estrutura do Projeto**: `PI_Japao/ESTRUTURA_PROJETO.md`
-- **Cadastro de Beacons**: `PI_Japao/GUIA_CADASTRO_BEACONS.md`
-- **Backend**: `PI_Japao/Backend/README.md`
+- **Estrutura do Projeto**: [arquitetura.md](arquitetura.md)
+- **Cadastro de Beacons**: [cadastro-beacons.md](cadastro-beacons.md)
+- **Backend**: [Backend/README.md](../PI_Japao/Backend/README.md)
 - **ESP32**: `PI_Japao/ESP32/README.md`
 
-## 🎯 Checklist Final
+## Checklist Final
 
 - [ ] Backend rodando e acessível
 - [ ] App iOS configurado com URL correta

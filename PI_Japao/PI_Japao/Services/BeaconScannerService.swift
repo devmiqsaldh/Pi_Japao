@@ -55,7 +55,7 @@ class BeaconScannerService: NSObject, ObservableObject {
             } else {
                 // Se não for UUID, tentar criar região com major/minor se disponível
                 // Por enquanto, apenas logar
-                print("⚠️ Beacon ID '\(beaconID)' não é um UUID válido")
+                Log.beacons.notice("ID de beacon inválido (não é UUID): \(beaconID)")
             }
         }
         
@@ -75,7 +75,7 @@ class BeaconScannerService: NSObject, ObservableObject {
     private func handleBeaconDetection(beaconID: String) {
         // Verificar se é um beacon conhecido
         guard knownBeaconIDs.contains(beaconID) else {
-            print("⚠️ Beacon detectado mas não está na lista de conhecidos: \(beaconID)")
+            Log.beacons.debug("Beacon desconhecido ignorado: \(beaconID)")
             return
         }
         
@@ -93,7 +93,7 @@ extension BeaconScannerService: CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didStartMonitoringFor region: CLRegion) {
-        print("✅ Iniciado monitoramento para região: \(region.identifier)")
+        Log.beacons.info("A monitorizar região \(region.identifier)")
         // Solicitar estado imediato da região
         manager.requestState(for: region)
     }
@@ -101,7 +101,7 @@ extension BeaconScannerService: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
         guard let beaconRegion = region as? CLBeaconRegion else { return }
         let beaconID = beaconRegion.identifier
-        print("📍 Beacon detectado: \(beaconID)")
+        Log.beacons.info("Beacon detetado: \(beaconID)")
         handleBeaconDetection(beaconID: beaconID)
     }
     
@@ -113,13 +113,13 @@ extension BeaconScannerService: CLLocationManagerDelegate {
         if state == .inside {
             guard let beaconRegion = region as? CLBeaconRegion else { return }
             let beaconID = beaconRegion.identifier
-            print("📍 Beacon já está dentro da região: \(beaconID)")
+            Log.beacons.info("Beacon já dentro da região: \(beaconID)")
             handleBeaconDetection(beaconID: beaconID)
         }
     }
     
     func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
-        print("❌ Erro ao monitorar região: \(error.localizedDescription)")
+        Log.beacons.error("Falha ao monitorizar região: \(error.localizedDescription)")
     }
 }
 

@@ -36,7 +36,7 @@ final class AttendanceManager {
             }
         } catch {
             errorMessage = "Erro ao carregar beacons: \(error.localizedDescription)"
-            print("❌ Erro: \(error)")
+            Log.attendance.error("Falha ao inicializar: \(error.localizedDescription)")
         }
     }
     
@@ -51,12 +51,12 @@ extension AttendanceManager: BeaconScannerServiceDelegate {
             do {
                 let response = try await apiService.reportDetection(beaconID: beaconID)
                 if response.success {
-                    print("✅ Detecção reportada com sucesso: \(response.message)")
+                    Log.attendance.info("Deteção registada: \(response.message)")
                 } else {
-                    print("⚠️ Detecção não processada: \(response.message)")
+                    Log.attendance.notice("Deteção não processada: \(response.message)")
                 }
             } catch {
-                print("❌ Erro ao reportar detecção: \(error.localizedDescription)")
+                Log.attendance.error("Falha ao reportar deteção: \(error.localizedDescription)")
             }
         }
     }

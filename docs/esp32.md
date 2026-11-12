@@ -1,8 +1,8 @@
-# 🔌 Como Configurar o ESP32-WROOM-32 com Beacons
+# Como Configurar o ESP32-WROOM-32 com Beacons
 
 Este guia detalhado explica como conectar o ESP32-WROOM-32 ao sistema de presença escolar.
 
-## 📦 Materiais Necessários
+## Materiais Necessários
 
 - ESP32-WROOM-32 (qualquer variante)
 - Cabo USB para programação
@@ -10,7 +10,7 @@ Este guia detalhado explica como conectar o ESP32-WROOM-32 ao sistema de presen�
 - Computador com Arduino IDE
 - Rede WiFi 2.4GHz
 
-## 🔧 Passo 1: Instalar Arduino IDE e Suporte ESP32
+## Passo 1: Instalar Arduino IDE e Suporte ESP32
 
 ### 1.1 Baixar Arduino IDE
 1. Acesse: https://www.arduino.cc/en/software
@@ -40,7 +40,7 @@ Este guia detalhado explica como conectar o ESP32-WROOM-32 ao sistema de presen�
    - **ArduinoJson** (versão 6.x ou superior)
    - **BLE** (geralmente já vem com ESP32)
 
-## 📝 Passo 2: Configurar o Código
+## Passo 2: Configurar o Código
 
 ### 2.1 Abrir o Código
 
@@ -98,7 +98,7 @@ const int scanDuration = 2;    // Duração de cada scan (segundos)
 - `scanInterval`: 5-10 segundos (mais rápido = mais bateria)
 - `scanDuration`: 2-3 segundos (mais longo = mais detecções)
 
-## 🔌 Passo 3: Fazer Upload para ESP32
+## Passo 3: Fazer Upload para ESP32
 
 ### 3.1 Conectar ESP32
 
@@ -123,7 +123,7 @@ No Arduino IDE:
 3. Durante o upload, você pode precisar pressionar o botão **BOOT** no ESP32
 4. Aguarde a mensagem "Done uploading"
 
-## ✅ Passo 4: Verificar Funcionamento
+## Passo 4: Verificar Funcionamento
 
 ### 4.1 Abrir Serial Monitor
 
@@ -163,7 +163,7 @@ No Arduino IDE:
 ✅ Detecção processada com sucesso!
 ```
 
-## 🔍 Passo 5: Obter UUID dos Beacons
+## Passo 5: Obter UUID dos Beacons
 
 ### Opção 1: Via Serial Monitor do ESP32
 
@@ -185,7 +185,7 @@ No Arduino IDE:
 2. Abra e inicie o scan
 3. Procure seu beacon e copie o UUID
 
-## 📱 Passo 6: Cadastrar Beacon no App
+## Passo 6: Cadastrar Beacon no App
 
 1. No app iOS, vá em **Beacons**
 2. Toque no botão **+** (Adicionar)
@@ -195,7 +195,7 @@ No Arduino IDE:
    - **Ativo**: Deixe marcado
 4. Toque em **Salvar**
 
-## 👥 Passo 7: Associar Beacon a Aluno
+## Passo 7: Associar Beacon a Aluno
 
 1. No app, vá em **Alunos**
 2. Toque no botão **+** (Adicionar)
@@ -206,7 +206,7 @@ No Arduino IDE:
    - **Beacon**: Selecione o beacon cadastrado
 4. Toque em **Salvar**
 
-## 🎯 Passo 8: Testar Sistema Completo
+## Passo 8: Testar Sistema Completo
 
 ### Checklist:
 
@@ -225,7 +225,7 @@ No Arduino IDE:
 3. **Backend processa** → Logs do backend mostram mensagem sendo enviada
 4. **App atualiza** → Histórico mostra a detecção
 
-## 🐛 Problemas Comuns
+## Problemas Comuns
 
 ### ESP32 não conecta ao WiFi
 
@@ -276,7 +276,7 @@ No Arduino IDE:
 - Confirme que está dentro da janela de tempo configurada
 - Verifique se aluno tem email ou telefone cadastrado
 
-## 📊 Monitoramento
+## Monitoramento
 
 ### Serial Monitor do ESP32
 
@@ -293,7 +293,7 @@ No terminal onde o backend está rodando, você verá:
 - Mensagens enviadas (email/SMS)
 - Erros (se houver)
 
-## 💡 Dicas
+## Dicas
 
 1. **Posicionamento**: Coloque o ESP32 em local centralizado para melhor cobertura
 2. **Alimentação**: Use fonte USB adequada (pelo menos 500mA)
@@ -301,7 +301,7 @@ No terminal onde o backend está rodando, você verá:
 4. **Teste**: Sempre teste com um beacon antes de usar em produção
 5. **Backup**: Mantenha uma lista dos UUIDs dos beacons cadastrados
 
-## 🔄 Atualizar Código
+## Atualizar Código
 
 Se precisar atualizar o código do ESP32:
 
@@ -309,11 +309,11 @@ Se precisar atualizar o código do ESP32:
 2. Faça upload novamente (mesmo processo do Passo 3)
 3. O ESP32 reiniciará automaticamente
 
-## 📞 Suporte
+## Suporte
 
 Se tiver problemas:
 1. Verifique os logs do Serial Monitor
 2. Verifique os logs do backend
-3. Consulte `CONFIGURACAO_COMPLETA.md` para guia completo
+3. Consulte [configuracao.md](configuracao.md) para guia completo
 4. Verifique se todos os componentes estão configurados corretamente
 
